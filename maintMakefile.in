@@ -78,6 +78,7 @@
 WWWDIR=/home/carlo/www/@PACKAGE@
 REDHAT:=$(shell grep '^%_topdir' rpm/macros | cut -d \  -f 2)
 SPECFILE=@PACKAGE@-${shell echo "@VERSION@" | cut -d. -f1}.spec
+RPMDIR=$(top_builddir)/rpm
 TARGET=i386
 REL=1
 AUTHOR=Carlo Wood <carlo@gnu.org>
