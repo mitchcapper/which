@@ -15,9 +15,10 @@ REL=1
 
 .PHONY: release tar
 
-release: tar
+release: tar cvslog
 	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
 	install -m 644 -o carlo index.html /home/carlo/www/which
+	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
 	@( \
 	  MINVER=`echo $(MINOR_VERSION) | awk -- '{ printf ("%d", $$0 + 1) }'`; \
 	  echo "MINOR_VERSION=$$MINVER"; \
@@ -58,3 +59,6 @@ index.html: EXAMPLES which.1 index.html.in
 	grep -A2000 '^MANPAGE' index.html.in | grep -v '^MANPAGE' | grep -B2000 '^EXAMPLES' | grep -v '^EXAMPLES' >> index.html
 	cat EXAMPLES >> index.html
 	grep -A2000 '^EXAMPLES' index.html.in | grep -v '^EXAMPLES' >> index.html
+
+cvslog:
+	cvs2html -e -D2 -o cvslog-$(VER)
