@@ -1,10 +1,10 @@
 Summary: Displays where a particular program in your path is located.
 Name: which
-Version: 2.0
+Version: 2.1
 Release: 1
 Copyright: distributable
 Group: Applications/System
-Source: ftp://metalab.unc.edu/pub/Linux/utils/shell/which-2.0.tar.gz
+Source: ftp://metalab.unc.edu/pub/Linux/utils/shell/which-2.1.tar.gz
 Prefix: /usr
 Buildroot: /var/tmp/which-root
 
@@ -30,5 +30,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/man/man1/which.1
 
 %changelog
+* Tue Apr 09 1999 Carlo Wood <carlo@runaway.xs4all.nl>
+- which version 2.1
+
 * Tue Apr 06 1999 Carlo Wood <carlo@runaway.xs4all.nl>
 - which version 2.0
