@@ -44,7 +44,7 @@ if test "$result" != no; then
   ac_tr_lib=HAVE_`echo $1 | sed -e 's/[^a-zA-Z0-9_]/_/g' \
     -e 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/'`
 changequote([, ])dnl
-  AC_DEFINE_UNQUOTED($ac_tr_lib)
+  AC_DEFINE_UNQUOTED($ac_tr_lib, 1, Define if static library is available.)
   LIBS="$result $LIBS"
 ], [$3])
 else
@@ -66,6 +66,6 @@ extern struct passwd *getpwnam();],
   bash_cv_can_redecl_getpw=yes,bash_cv_can_redecl_getpw=no)])
 AC_MSG_RESULT($bash_cv_can_redecl_getpw)
 if test $bash_cv_can_redecl_getpw = no; then
-AC_DEFINE(HAVE_GETPW_DECLS)
+AC_DEFINE([HAVE_GETPW_DECLS], 1, [Define this when you are able to redeclare getpw functions.])
 fi
 ])
