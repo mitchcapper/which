@@ -1,3 +1,8 @@
+Version 2.10 --> 2.11
+
+* Added a texinfo file (no reason to upgrade at all thus)
+  `info' is the prefered format for documenting GNU tools.
+
 Version 2.9 --> 2.10
 
 * Buildsystem fixes (no reason to upgrade at all thus):
