@@ -1,26 +1,48 @@
-~>touch cat
-~>chmod 700 cat
 ~>which
 Usage: which [options] [--] programname [...]
 Options: --version    Print version and exit successfully.
          --skip-dot   Skip directories in PATH that start with a dot.
          --skip-tilde Skip directories in PATH that start with a tilde.
          --show-dot   Don't expand a dot to current directory in output.
+         --show-tilde Output a tilde for HOME directory.
+         --tty-only   Stop processing options on the right if not on tty.
 ~>which --version
 GNU which v2.0 -- by Carlo Wood
+~>which -- --version
+which: no --version in (.:~/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin)
+
+~>touch cat
+~>chmod 700 cat
 ~>which cat
 /home/carlo/cat
 ~>which --show-dot cat
 ./cat
-~>which --show-dot --skip-dot cat
+~>which --skip-dot cat
 /bin/cat
-~>which -- --version
-which: no --version in (.:/home/carlo/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/X11R6/bin:/usr/X11R6/bin:/opt/kde/bin:/usr/local/share/prototype/scripts:/usr/local/java/bin)
+
 ~>ls -ld man
 drwx------   4 carlo    root         1024 Sep 23  1997 man/
 ~>which man
 /usr/bin/man
+
 ~>touch notexec
 ~>which notexec
-which: no notexec in (.:/home/carlo/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/X11R6/bin:/usr/X11R6/bin:/opt/kde/bin:/usr/local/share/prototype/scripts:/usr/local/java/bin)
+which: no notexec in (.:~/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin)
 
+~>which q2
+/home/carlo/bin/q2
+~>which --skip-tilde q2
+which: no q2 in (.:~/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin)
+
+~>which --tty --show-tilde q2
+~/bin/q2
+~>echo `which --tty --show-tilde q2`
+/home/carlo/bin/q2
+~>echo `which --show-tilde --tty q2`
+~/bin/q2
+
+~>which foo ls bar; echo Return value: $?
+which: no foo in (.:~/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin)
+/bin/ls
+which: no bar in (.:~/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin)
+Return value: 2

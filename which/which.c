@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <string.h>
 #include <libiberty.h>
 #include "bash.h"
 
@@ -31,6 +32,8 @@ static void print_usage(const char *progname)
   fprintf(stderr, "         --skip-dot   Skip directories in PATH that start with a dot.\n");
   fprintf(stderr, "         --skip-tilde Skip directories in PATH that start with a tilde.\n");
   fprintf(stderr, "         --show-dot   Don't expand a dot to current directory in output.\n");
+  fprintf(stderr, "         --show-tilde Output a tilde for HOME directory.\n");
+  fprintf(stderr, "         --tty-only   Stop processing options on the right if not on tty.\n");
 }
 
 static void print_version(void)
@@ -47,7 +50,9 @@ enum opts {
   opt_version,
   opt_skip_dot,
   opt_skip_tilde,
-  opt_show_dot
+  opt_show_dot,
+  opt_show_tilde,
+  opt_tty_only
 };
 
 int skip_dot = 0, skip_tilde = 0;
@@ -56,13 +61,17 @@ int main(int argc, char *argv[])
 {
   const char *progname = argv[0];
   const char *path_list = getenv ("PATH");
-  char cwd[256];
-  int option, fail_count = 0, show_dot = 0;
+  char cwd[256], home[256];
+  size_t homelen = 0;
+  int option, fail_count = 0;
+  int show_dot = 0, show_tilde = 0, tty_only = 0;
   struct option longopts[] = {
   	{ "version", 0, &option, opt_version },
 	{ "skip-dot", 0, &option, opt_skip_dot },
 	{ "skip-tilde", 0, &option, opt_skip_tilde },
 	{ "show-dot", 0, &option, opt_show_dot },
+	{ "show-tilde", 0, &option, opt_show_tilde },
+	{ "tty-only", 0, &option, opt_tty_only },
 	{ NULL, 0, NULL, 0 } };
 
   while(!getopt_long(argc, argv, "", longopts, NULL))
@@ -73,14 +82,20 @@ int main(int argc, char *argv[])
         print_version();
 	return 0;
       case opt_skip_dot:
-        skip_dot = 1;
+        skip_dot = !tty_only;
         break;
       case opt_skip_tilde:
-        skip_tilde = 1;
+        skip_tilde = !tty_only;
         break;
       case opt_show_dot:
-        show_dot = 1;
+        show_dot = !tty_only;
         break;
+      case opt_show_tilde:
+        show_tilde = !tty_only;
+        break;
+      case opt_tty_only:
+        tty_only = !isatty(1);
+	break;
     }
   }
 
@@ -93,6 +108,27 @@ int main(int argc, char *argv[])
 	strcpy(cwd, ".");
       else
 	strcpy(cwd, pwd);
+    }
+  }
+
+  if (show_tilde)
+  {
+    const char *h;
+    if (!(h = getenv("HOME")))
+    {
+      fprintf(stderr, "%s: --show-tilde: Environment variable HOME not set\n", progname);
+      show_tilde = 0;
+    }
+    else
+    {
+      strncpy(home, h, sizeof(home));
+      home[sizeof(home) - 1] = 0;
+      homelen = strlen(home);
+      if (home[homelen - 1] != '/' && homelen < sizeof(home) - 1)
+      {
+        strcat(home, "/");
+	++homelen;
+      }
     }
   }
 
@@ -116,6 +152,11 @@ int main(int argc, char *argv[])
 	{
 	  ++result;
 	  fprintf(stdout, "%s", cwd);
+	}
+	else if (show_tilde && *result == '/' && !strncmp(result, home, homelen))
+	{
+	  result += homelen;
+	  fprintf(stdout, "~/");
 	}
 	fprintf(stdout, "%s\n", result);
       }
