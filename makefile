@@ -23,6 +23,7 @@ REDHAT:=$(shell grep '^%_topdir' rpm/macros | cut -d \  -f 2)
 
 setup-dist:
 	make README
+	autoheader
 	automake
 	aclocal
 	autoconf
