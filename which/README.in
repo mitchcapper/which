@@ -14,6 +14,13 @@ version will not return directory names as being executables
 and that by default it will expand a leading "./" and "~/" to
 its full path on output.
 
+The -all option has been added in example of a version of which
+on Ultrix.  They use `-a' as option.
+
+The --read-alias idea has been copied from a version of which by
+Maarten Litmaath called `which-v6', he was using `-i' as option
+which stands for `interactive'.
+
 Manual page
 ===========
 

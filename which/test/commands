@@ -69,3 +69,14 @@ which ./xxx
 /usr/local/bin/su0 /bin/chgrp bin xxx
 which ./xxx
 
+alias which='alias | which --tty-only --read-alias --show-tilde --show-dot'
+alias test1='test1'
+alias test2='echo "test2" | cat | sort'
+alias test3='  echo "test2"|cat&sort'
+alias test4='	ls &&sort ||/usr/bin/which || exit'
+
+which which
+which test1
+which test2
+which test3
+which test4

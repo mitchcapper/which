@@ -3,10 +3,11 @@
 perform_test () {
   (
     cd /home/carlo/c/which
-    unalias which
     export PATH=".:~/bin:/bin:/usr/bin"
     export HOME=`(cd ~; pwd)`
-    awk --assign is_root=0 '{
+    unalias which
+    rm -f alias.list
+    awk --assign is_root=0 --assign use_alias=0 '{
       if ($$0 == "") print
       else if ($$0~/^\/usr\/local\/bin\/su0 \/bin\//)
       {
@@ -19,6 +20,17 @@ perform_test () {
 	sub("^\/usr\/local\/bin\/su0 \/bin\/", "");
 	printf(">%s\n", $$0);
       }
+      else if ($$0~/^alias which/)
+      {
+        printf(">%s\n", $$0);
+	use_alias=1;
+	system("echo \""$$0"\" >> alias.list");
+      }
+      else if ($$0~/^alias /)
+      {
+        printf(">%s\n", $$0);
+	system("echo \""$$0"\" >> alias.list");
+      }
       else
       {
 	if (is_root == 1)
@@ -27,10 +39,15 @@ perform_test () {
 	  is_root=0;
 	}
 	printf(">%s\n", $$0);
+	if (use_alias == 1)
+	{
+	  if ($$0~/^which /)
+	    sub("^which ", "/bin/cat alias.list | which --read-alias --show-tilde --show-dot ");
+	}
 	system($$0" 2>&1");
       }
     }' test/commands > test/.testout;
-    /usr/local/bin/su0 /bin/rm -f cat xxx;
+    /usr/local/bin/su0 /bin/rm -f cat xxx alias.list;
   )
 }
 
