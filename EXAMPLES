@@ -18,7 +18,7 @@ Options: --version, -[vV] Print version and exit successfully.
 GNU which v2.5, Copyright (C) 1999 Carlo Wood.
 GNU which comes with ABSOLUTELY NO WARRANTY;
 This program is free software; your freedom to use, change
-and distribute this program is covered by the GPL.
+and distribute this program is protected by the GPL.
 
 >which -- --version
 which: no --version in (.:~/bin:/bin:/usr/bin)
