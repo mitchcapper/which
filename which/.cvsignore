@@ -14,7 +14,7 @@ config.log
 config.cache
 config.status
 .deps
-.release_day
+.release_second
 .prevtag
 ChangeLog
 which-2.spec
