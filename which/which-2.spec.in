@@ -39,6 +39,6 @@ rm -rf $RPM_BUILD_ROOT
 * Sat Apr 17 1999 Carlo Wood <carlo@gnu.org>
 - Started to use automake and autoconf
 
-* Fri Apr 09 1999 Wood <carlo@gnu.org>
+* Fri Apr 09 1999 Carlo Wood <carlo@gnu.org>
 - Renamed which-2.0.spec to which-2.spec
 
