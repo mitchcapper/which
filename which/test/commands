@@ -69,6 +69,7 @@ which cat
 
 /usr/local/bin/su0 /bin/chmod 541 cat
 which cat
+/usr/local/bin/su0 /bin/rm -f cat
 
 /usr/local/bin/su0 /bin/chown root xxx
 which ./xxx
