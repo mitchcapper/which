@@ -38,10 +38,10 @@ release: tar index.html cvslog rpm
 	echo "$(TAG)" > .prevtag
 	date +%j > .release_day
 
-tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README index.html Makefile.in configure which-2.spec
+tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README index.html Makefile.in configure which-2.spec EXAMPLES
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
-	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in which-2.spec /tmp/which-$(VER)
+	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in which-2.spec EXAMPLES /tmp/which-$(VER)
 	cp -pr .deps /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
