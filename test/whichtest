@@ -5,7 +5,6 @@ perform_test () {
     cd /home/carlo/c/which
     export PATH=".:~/bin:/bin:/usr/bin"
     export HOME=`(cd ~; pwd)`
-    unalias which
     rm -f alias.list
     awk --assign is_root=0 --assign use_alias=0 '{
       if ($$0 == "") print
