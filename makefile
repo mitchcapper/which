@@ -23,13 +23,14 @@ setup-dist:
 	automake
 	aclocal
 	autoconf
+	@echo "Next run ./configure with the appropriate options"
 
 release: tar index.html cvslog
 	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
 	install -m 644 -o carlo index.html /home/carlo/www/which
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
 
-tar: ChangeLog README
+tar: ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
 	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in /tmp/which-$(VER)
