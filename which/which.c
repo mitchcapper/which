@@ -32,7 +32,7 @@ static void print_usage(const char *progname)
   fprintf(stderr, "         --skip-dot   Skip directories in PATH that start with a dot.\n");
   fprintf(stderr, "         --skip-tilde Skip directories in PATH that start with a tilde.\n");
   fprintf(stderr, "         --show-dot   Don't expand a dot to current directory in output.\n");
-  fprintf(stderr, "         --show-tilde Output a tilde for HOME directory.\n");
+  fprintf(stderr, "         --show-tilde Output a tilde for HOME directory for non-root.\n");
   fprintf(stderr, "         --tty-only   Stop processing options on the right if not on tty.\n");
 }
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
         show_dot = !tty_only;
         break;
       case opt_show_tilde:
-        show_tilde = !tty_only;
+        show_tilde = (!tty_only && geteuid() != 0);
         break;
       case opt_tty_only:
         tty_only = !isatty(1);
