@@ -38,10 +38,10 @@ release: tar index.html cvslog rpm
 	echo "$(TAG)" > .prevtag
 	date +%j > .release_day
 
-tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README index.html Makefile.in configure which-2.spec EXAMPLES
+tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README index.html Makefile.in configure which-2.spec EXAMPLES which.lsm
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
-	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in which-2.spec EXAMPLES /tmp/which-$(VER)
+	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in which-2.spec EXAMPLES which.lsm /tmp/which-$(VER)
 	cp -pr .deps /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
@@ -56,7 +56,7 @@ tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README i
 	rm /tmp/which-$(VER)/.cvsignore /tmp/which-$(VER)/makefile
 	rm /tmp/which-$(VER)/README.in /tmp/which-$(VER)/index.html.in
 	rm /tmp/which-$(VER)/.indent.pro /tmp/which-$(VER)/index.html
-	rm /tmp/which-$(VER)/which-2.spec.in
+	rm /tmp/which-$(VER)/which-2.spec.in /tmp/which-$(VER)/which.lsm.in
 	rm -rf /tmp/which-$(VER)/rpm /tmp/which-$(VER)/test
 	tar czf $(REDHAT)/SOURCES/which-$(VER).tar.gz -C /tmp which-$(VER)
 	rm -rf /tmp/which-$(VER)
@@ -114,6 +114,9 @@ which-2.spec: which-2.spec.in
 EXAMPLES: which
 	( cd test; whichtest check; ) || exit -1;
 	( cd test; whichtest generate; )
+
+which.lsm: which.lsm.in
+	sed -e 's/@VERSION@/$(VER)/g' which.lsm.in > which.lsm
 
 .PHONY: ChangeLog
 ChangeLog:
