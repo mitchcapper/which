@@ -36,6 +36,7 @@ release: tar index.html cvslog rpm
 	install -m 644 -o carlo $(REDHAT)/SOURCES/which-$(VER).tar.gz /home/carlo/www/which
 	install -m 644 -o carlo index.html /home/carlo/www/which
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
+	install -m 644 -o carlo which.lsm /home/carlo/www/which
 	cvs tag $(TAG)
 	echo "$(TAG)" > .prevtag
 	date +%j > .release_day
@@ -43,7 +44,7 @@ release: tar index.html cvslog rpm
 tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README index.html Makefile.in configure which-2.spec EXAMPLES which.lsm
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
-	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in which-2.spec EXAMPLES which.lsm /tmp/which-$(VER)
+	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in which-2.spec EXAMPLES /tmp/which-$(VER)
 	cp -pr .deps /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
