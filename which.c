@@ -19,8 +19,9 @@
 
 #include "sys.h"
 #include <stdio.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
-#include <libiberty.h>       /* Part of libiberty.a that comes with binutils */
+#endif
 #include <readline/tilde.h>  /* Part of libreadline that comes with binutils */
 #include "bash.h"
 

@@ -21,7 +21,6 @@
 
 #include "sys.h"
 #include <sys/stat.h>
-#include <libiberty.h>
 #include "bash.h"
 
 /* bash uses GID_T, autoconf defines GETGROUPS_T */

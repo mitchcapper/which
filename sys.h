@@ -28,3 +28,10 @@ char *strchr (), *strrchr ();
 #if STDC_HEADERS
 # include <stdlib.h>
 #endif
+
+#ifdef HAVE_LIBIBERTY_H
+#include <libiberty.h>       /* Part of libiberty.a that comes with binutils */
+#else
+extern void *xmalloc(size_t);
+#endif
+

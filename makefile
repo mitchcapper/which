@@ -11,44 +11,35 @@ ifeq (Makefile,$(wildcard Makefile))
 include Makefile
 endif
 
-MAJOR_VERSION=2
-MINOR_VERSION=1
-VER:=$(MAJOR_VERSION).$(MINOR_VERSION)
+VER:=${shell grep AM_INIT_AUTOMAKE configure.in | cut -d, -f2 | cut -d')' -f1 | sed -e 's% %%g'}
+MAJOR_VERSION:=${shell echo "$(VER)" | cut -d. -f1}
+MINOR_VERSION:=${shell echo "$(VER)" | cut -d. -f2}
 REL=1
 
 .PHONY: release tar
 
-maintainer-start:
+setup-dist:
 	make README
 	automake
 	aclocal
-	autoheader
 	autoconf
-	configure --prefix=/usr
 
 release: tar cvslog
 	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
 	install -m 644 -o carlo index.html /home/carlo/www/which
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
-	@( \
-	  MINVER=`echo $(MINOR_VERSION) | awk -- '{ printf ("%d", $$0 + 1) }'`; \
-	  echo "MINOR_VERSION=$$MINVER"; \
-	  cp makefile makefile.bak && \
-	  sed -e s%'^MINOR_VERSION=.*$$'%MINOR_VERSION=$$MINVER% makefile.bak > makefile || exit 1; \
-	  rm makefile.bak; \
-	)
 
 tar: README index.html
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
-	cp README index.html /tmp/which-$(VER)
-	( for i in `find . -type d ! -name CVS -print`; do \
+	cp -p README index.html Makefile.in configure aclocal.m4 stamp-h.in /tmp/which-$(VER)
+	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
 	  if [ "$$i" != "." ]; then \
 	    mkdir /tmp/which-$(VER)/$$i; \
 	  fi; \
 	  for j in $$files; do \
-	    cp $$i/$$j /tmp/which-$(VER)/$$i/$$j; \
+	    cp -p $$i/$$j /tmp/which-$(VER)/$$i/$$j; \
 	  done; \
 	done; \
 	)
