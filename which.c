@@ -390,37 +390,6 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
   }
 }
 
-int process_function(const char *str, int argc, char *argv[], const char *path_list)
-{
-  const char *p = str;
-  int len = 0;
-
-  // Expected pattern for `str' is "declare -[a-z]* FUNCTION_NAME (.*"
-  if (strncmp("declare -", p, 9))
-    return 0;
-
-  p += 9;
-  while(*p && *p++ != ' ');
-
-  while(*p && *p != ' ')
-    ++p, ++len;
-
-  for (; argc > 0; --argc, ++argv)
-  {
-    if (!*argv || len != strlen(*argv) || strncmp(*argv, &p[-len], len))
-      continue;
-
-    fputs(&p[-len], stdout);
-
-    if (!show_all)
-      *argv = NULL;
-
-    return 1;
-  }
-
-  return 0;
-}
-
 enum opts {
   opt_version,
   opt_skip_dot,
@@ -566,19 +535,43 @@ int main(int argc, char *argv[])
 
     while (fgets(buf, sizeof(buf), stdin))
     {
-      if (strncmp(buf, "declare", 7))
+      int looks_like_function_start = 0;
+      int function_start_version_205b;
+      if (read_functions)
       {
-	if (processing_aliases)
+	// bash version 2.0.5a and older output a pattern for `str' like
+	// declare -fx FUNCTION_NAME ()
+	// {
+	//   body
+	// }
+	//
+	// bash version 2.0.5b and later output a pattern for `str' like
+	// FUNCTION_NAME ()
+	// {
+	//   body
+	// }
+	char *p = buf + strlen(buf) - 1;
+	while (isspace(*p) && p > buf + 2)
+	  --p;
+	if (*p == ')' && p[-1] == '(' && p[-2] == ' ')
 	{
-	  if (alias_count == max_alias_count)
-	  {
-	    max_alias_count += 32;
-	    aliases = (char **)xrealloc(aliases, max_alias_count * sizeof(char *));
-	  }
-	  aliases[alias_count++] = strcpy((char *)xmalloc(strlen(buf) + 1), buf);
+	  looks_like_function_start = 1;
+	  function_start_version_205b = (strncmp("declare -", buf, 9) != 0);
 	}
       }
-      else if (read_functions)
+      if (processing_aliases && !looks_like_function_start)
+      {
+	// bash version 2.0.5b can throw in lines like "declare -fx FUNCTION_NAME", eat them.
+	if (!strncmp("declare -", buf, 9))
+	  continue;
+	if (alias_count == max_alias_count)
+	{
+	  max_alias_count += 32;
+	  aliases = (char **)xrealloc(aliases, max_alias_count * sizeof(char *));
+	}
+	aliases[alias_count++] = strcpy((char *)xmalloc(strlen(buf) + 1), buf);
+      }
+      else if (read_functions && looks_like_function_start)
       {
         struct function_st *function;
         int max_line_count;
@@ -588,12 +581,12 @@ int main(int argc, char *argv[])
 
         processing_aliases = 0;
 
-	// Expected pattern for `str' is "declare -[a-z]* FUNCTION_NAME (.*"
-	if (strncmp("declare -", p, 9))
-	  continue;
-
-	p += 9;
-	while(*p && *p++ != ' ');
+	// Eat "declare -fx " at start of bash version 2.0.5a and older, if present.
+	if (!function_start_version_205b)
+	{
+	  p += 9;
+	  while(*p && *p++ != ' ');
+	}
 
 	while(*p && *p != ' ')
 	  ++p, ++len;
