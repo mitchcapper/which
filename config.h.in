@@ -40,12 +40,6 @@
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
 
-/* Define if you have the iberty library (-liberty).  */
-#undef HAVE_LIBIBERTY
-
-/* Define if you have the readline library (-lreadline).  */
-#undef HAVE_LIBREADLINE
-
 /* Name of package */
 #undef PACKAGE
 

@@ -9,8 +9,8 @@ AC_PROG_INSTALL
 AC_LANG_C
 
 dnl Checks for libraries.
-AC_CHECK_LIB(readline, tilde_expand)
-AC_CHECK_LIB(iberty, xmalloc)
+AC_CHECK_STATICLIB(libreadline.a, tilde_expand)
+AC_CHECK_STATICLIB(libiberty.a, xmalloc)
 
 dnl Checks for header files.
 AC_HEADER_STDC
