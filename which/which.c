@@ -337,12 +337,13 @@ int main(int argc, char *argv[])
 	if (result)
 	{
 	  const char *full_path = path_clean_up(result);
-	  if (show_dot && found_path_starts_with_dot && !strncmp(full_path, cwd, cwdlen))
+	  int in_home = (show_tilde || skip_tilde) && !strncmp(full_path, home, homelen);
+	  if (!(skip_tilde && in_home) && show_dot && found_path_starts_with_dot && !strncmp(full_path, cwd, cwdlen))
 	  {
 	    full_path += cwdlen;
 	    fprintf(stdout, "./");
 	  }
-	  else if ((show_tilde || skip_tilde) && !strncmp(full_path, home, homelen))
+	  else if (in_home)
 	  {
 	    if (skip_tilde)
 	    {
