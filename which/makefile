@@ -24,12 +24,12 @@ setup-dist:
 	aclocal
 	autoconf
 
-release: tar cvslog
+release: tar index.html cvslog
 	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
 	install -m 644 -o carlo index.html /home/carlo/www/which
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
 
-tar: ChangeLog README index.html
+tar: ChangeLog README
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
 	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in /tmp/which-$(VER)
@@ -45,7 +45,7 @@ tar: ChangeLog README index.html
 	)
 	rm /tmp/which-$(VER)/.cvsignore /tmp/which-$(VER)/makefile
 	rm /tmp/which-$(VER)/README.in /tmp/which-$(VER)/index.html.in
-	rm /tmp/which-$(VER)/.indent.pro
+	rm /tmp/which-$(VER)/.indent.pro /tmp/which-$(VER)/index.html
 	rm -rf /tmp/which-$(VER)/rpm
 	tar czf which-$(VER).tar.gz -C /tmp which-$(VER)
 	rm -rf /tmp/which-$(VER)
