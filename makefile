@@ -55,12 +55,12 @@ tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README i
 
 README: which.1 README.in
 	cp README.in README
-	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 59 | tail -n 56 >> README
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 60 | tail -n 57 >> README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> README
 
 index.html: EXAMPLES which.1 index.html.in
 	grep -B2000 '^MANPAGE' index.html.in | grep -v '^MANPAGE' > index.html
-	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 59 | tail -n 56 >> index.html
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 60 | tail -n 57 >> index.html
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> index.html
 	grep -A2000 '^MANPAGE' index.html.in | grep -v '^MANPAGE' | grep -B2000 '^EXAMPLES' | grep -v '^EXAMPLES' >> index.html
 	cat EXAMPLES >> index.html
