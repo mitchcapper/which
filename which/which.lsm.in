@@ -12,7 +12,7 @@ Description: Which is a utility that prints out the full path of the
 	     match any directory in PATH.
 Keywords: which utility directory path executable bash
 Author: carlo@gnu.org (Carlo Wood)
-Maintained-by: carlo@node1500a.a2000.nl (Carlo Wood)
+Maintained-by: carlo@alinoe.com (Carlo Wood)
 Primary-site: http://www.xs4all.nl/~carlo17/which/
 Original-site:
 Alternate-site: ftp.gnu.org /gnu/which
