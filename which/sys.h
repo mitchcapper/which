@@ -29,9 +29,10 @@ char *strchr (), *strrchr ();
 # include <stdlib.h>
 #endif
 
-#ifdef HAVE_LIBIBERTY_H
+#if defined(HAVE_LIBIBERTY_H) && !defined(NEED_XMALLOC)
 #include <libiberty.h>       /* Part of libiberty.a that comes with binutils */
 #else
 extern void *xmalloc(size_t);
+extern void *xrealloc(void *ptr, size_t size);
 #endif
 

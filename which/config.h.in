@@ -22,6 +22,12 @@
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef uid_t
 
+/* Define if you need xmalloc() */
+#undef NEED_XMALLOC
+
+/* Define if you need tilde_expand() */
+#undef NEED_TILDE_EXPAND
+
 /* Define if you have the getcwd function.  */
 #undef HAVE_GETCWD
 
@@ -36,6 +42,9 @@
 
 /* Define if you have the <libiberty.h> header file.  */
 #undef HAVE_LIBIBERTY_H
+
+/* Define if you have the <readline/tilde.h> header file.  */
+#undef HAVE_READLINE_TILDE_H
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H

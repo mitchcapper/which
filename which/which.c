@@ -1,6 +1,6 @@
 /*
  * which v2.x -- print full path of executables
- * Copyright (C) 1999  Carlo Wood <carlo@runaway.xs4all.nl>
+ * Copyright (C) 1999  Carlo Wood <carlo@gnu.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,10 +22,16 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
+#if defined(HAVE_READLINE_TILDE_H) && !defined(NEED_TILDE_EXPAND)
 #include <readline/tilde.h>  /* Part of libreadline that comes with binutils */
+#else
+extern char *tilde_expand (const char *);
+#endif
 #include "bash.h"
 
-static void print_usage(const char *progname)
+static const char *progname;
+
+static void print_usage(void)
 {
   fprintf(stderr, "Usage: %s [options] [--] programname [...]\n", progname);
   fprintf(stderr, "Options: --version    Print version and exit successfully.\n");
@@ -45,7 +51,7 @@ static void print_version(void)
   fprintf(stdout, "and distribute this program is covered by the GPL.\n");
 }
 
-static void print_fail(const char *progname, const char *name, const char *path_list)
+static void print_fail(const char *name, const char *path_list)
 {
   fprintf(stderr, "%s: no %s in (%s)\n", progname, name, path_list);
 }
@@ -231,12 +237,12 @@ enum opts {
   opt_tty_only
 };
 
+static char home[256];
+static size_t homelen = 0;
+
 int main(int argc, char *argv[])
 {
-  const char *progname = argv[0];
   const char *path_list = getenv("PATH");
-  char home[256];
-  size_t homelen = 0;
   int short_option, long_option, fail_count = 0, path_index;
   int show_dot = 0, show_tilde = 0, tty_only = 0;
   struct option longopts[] = {
@@ -250,6 +256,7 @@ int main(int argc, char *argv[])
     {NULL, 0, NULL, 0}
   };
 
+  progname = argv[0];
   while ((short_option = getopt_long(argc, argv, "a", longopts, NULL)) != -1)
   {
     switch (short_option)
@@ -317,7 +324,7 @@ int main(int argc, char *argv[])
 
   if (!*argv)
   {
-    print_usage(progname);
+    print_usage();
     return -1;
   }
 
@@ -367,10 +374,57 @@ int main(int argc, char *argv[])
     }
     if (!found_something)
     {
-      print_fail(progname, absolute_path_given ? strrchr(*argv, '/') + 1 : *argv, absolute_path_given ? abs_path : path_list);
+      print_fail(absolute_path_given ? strrchr(*argv, '/') + 1 : *argv, absolute_path_given ? abs_path : path_list);
       ++fail_count;
     }
   }
 
   return fail_count;
 }
+
+#ifdef NEED_XMALLOC
+void *xmalloc(size_t size)
+{
+  void *ptr = malloc(size);
+  if (ptr == NULL)
+  {
+    fprintf(stderr, "%s: Out of memory", progname);
+    exit(-1);
+  }
+  return ptr;
+}
+
+void *xrealloc(void *ptr, size_t size)
+{
+  if (!ptr)
+    return xmalloc(size);
+  ptr = realloc(ptr, size);
+  if (size > 0 && ptr == NULL)
+  {
+    fprintf(stderr, "%s: Out of memory\n", progname);
+    exit(-1);
+  }
+  return ptr;
+}
+#endif /* NEED_XMALLOC */
+
+#ifdef NEED_TILDE_EXPAND
+char *tilde_expand (const char *path)
+{
+  char *ptr;
+  if (path[0] == '~')
+  {
+    if (path[1] == '/')
+    {
+      ptr = (char *)xmalloc(homelen + strlen(path));
+      strcpy(ptr, home);
+      strcat(ptr, &path[2]);
+      return ptr;
+    }
+    fprintf(stderr, "%s: WARNING - this utility was compiled without libreadline, can not expand tilde in \"%s\"\n", progname, path);
+  }
+  ptr = (char *)xmalloc(strlen(path) + 1);
+  strcpy(ptr, path);
+  return ptr;
+}
+#endif /* NEED_TILDE_EXPAND */
