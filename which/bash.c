@@ -19,22 +19,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "sys.h"
 #include <sys/stat.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 #include <libiberty.h>
 #include "bash.h"
 
-extern int skip_tilde, skip_dot;
+/* bash uses GID_T, autoconf defines GETGROUPS_T */
+#define GID_T GETGROUPS_T
 
 /*
  * CHANGED:
- * No need to make this work on other OS than linux.
- * The following macro's are used below:
+ * Perhaps these need new configure.in entries.
+ * The following macro's are used in bash, and below:
  */
 #define HAVE_GETGROUPS
-#define GID_T gid_t
 #undef SHELL
 #undef AFS
 #undef NOGROUP

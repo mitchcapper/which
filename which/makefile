@@ -6,7 +6,10 @@
 # Key fingerprint = 32 EC A7 B6 AC DB 65 A6  F6 F6 55 DD 1C DC FF 61
 #
 
+srcdir=.
+ifeq (Makefile,$(wildcard Makefile))
 include Makefile
+endif
 
 MAJOR_VERSION=2
 MINOR_VERSION=1
@@ -14,6 +17,14 @@ VER:=$(MAJOR_VERSION).$(MINOR_VERSION)
 REL=1
 
 .PHONY: release tar
+
+maintainer-start:
+	make README
+	automake
+	aclocal
+	autoheader
+	autoconf
+	configure --prefix=/usr
 
 release: tar cvslog
 	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which

@@ -1,10 +1,10 @@
 Summary: Displays where a particular program in your path is located.
 Name: which
-Version: 2.1
+Version: 2.2
 Release: 1
 Copyright: distributable
 Group: Applications/System
-Source: ftp://metalab.unc.edu/pub/Linux/utils/shell/which-2.1.tar.gz
+Source: ftp://metalab.unc.edu/pub/Linux/utils/shell/which-2.2.tar.gz
 Prefix: /usr
 Buildroot: /var/tmp/which-root
 
@@ -16,7 +16,8 @@ the specified program is in your PATH.
 %setup
 
 %build
-make prefix=/usr
+configure --prefix=/usr
+make CFLAGS=-O2 -DHAVE_CONFIG_H
 
 %install
 make prefix=$RPM_BUILD_ROOT/usr install
@@ -30,6 +31,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/man/man1/which.1
 
 %changelog
+* Tue Apr 16 1999 Carlo Wood <carlo@runaway.xs4all.nl>
+- which version 2.2
+
 * Tue Apr 09 1999 Carlo Wood <carlo@runaway.xs4all.nl>
 - which version 2.1
 
