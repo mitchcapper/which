@@ -1,3 +1,9 @@
+Version 2.9 --> 2.10
+
+* Buildsystem fixes (no reason to upgrade at all thus):
+  Used the correct order of calling the automake/conf utils,
+  fixed my E-mail address and added a Source: line to the rpm spec.
+
 Version 2.8 --> 2.9
 
 * Fixed compile problem in Solaris 5.6 using cc
