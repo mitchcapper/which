@@ -34,13 +34,13 @@ static const char *progname;
 static void print_usage(void)
 {
   fprintf(stderr, "Usage: %s [options] [--] programname [...]\n", progname);
-  fprintf(stderr, "Options: --version    Print version and exit successfully.\n");
-  fprintf(stderr, "         --skip-dot   Skip directories in PATH that start with a dot.\n");
-  fprintf(stderr, "         --skip-tilde Skip directories in PATH that start with a tilde.\n");
-  fprintf(stderr, "         --show-dot   Don't expand a dot to current directory in output.\n");
-  fprintf(stderr, "         --show-tilde Output a tilde for HOME directory for non-root.\n");
-  fprintf(stderr, "         --tty-only   Stop processing options on the right if not on tty.\n");
-  fprintf(stderr, "         --all, -a    Print all matching executables in PATH, not just the first\n");
+  fprintf(stderr, "Options: --version, -[vV] Print version and exit successfully.\n");
+  fprintf(stderr, "         --skip-dot       Skip directories in PATH that start with a dot.\n");
+  fprintf(stderr, "         --skip-tilde     Skip directories in PATH that start with a tilde.\n");
+  fprintf(stderr, "         --show-dot       Don't expand a dot to current directory in output.\n");
+  fprintf(stderr, "         --show-tilde     Output a tilde for HOME directory for non-root.\n");
+  fprintf(stderr, "         --tty-only       Stop processing options on the right if not on tty.\n");
+  fprintf(stderr, "         --all, -a        Print all matches in PATH, not just the first\n");
 }
 
 static void print_version(void)
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
   };
 
   progname = argv[0];
-  while ((short_option = getopt_long(argc, argv, "a", longopts, NULL)) != -1)
+  while ((short_option = getopt_long(argc, argv, "avV", longopts, NULL)) != -1)
   {
     switch (short_option)
     {
@@ -287,6 +287,10 @@ int main(int argc, char *argv[])
       case 'a':
         show_all = 1;
         break;
+      case 'v':
+      case 'V':
+	print_version();
+	return 0;
     }
   }
 
