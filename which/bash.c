@@ -273,35 +273,6 @@ get_next_path_element (const char *path_list, int *path_index_pointer)
   return (path);
 }
 
-/* Return 1 if PATH1 and PATH2 are the same file.  This is kind of
-   expensive.  If non-NULL STP1 and STP2 point to stat structures
-   corresponding to PATH1 and PATH2, respectively. */
-int
-same_file (
-     const char *path1,
-     const char *path2,
-     const struct stat *stp1,
-     const struct stat *stp2)
-{
-  struct stat st1, st2;
-
-  if (stp1 == NULL)
-    {
-      if (stat (path1, &st1) != 0)
-        return (0);
-      stp1 = &st1;
-    }
-
-  if (stp2 == NULL)
-    {
-      if (stat (path2, &st2) != 0)
-        return (0);
-      stp2 = &st2;
-    }
-
-  return ((stp1->st_dev == stp2->st_dev) && (stp1->st_ino == stp2->st_ino));
-}
-
 /* Turn PATH, a directory, and NAME, a filename, into a full pathname.
    This allocates new memory and returns it. */
 char *
