@@ -9,4 +9,8 @@ AC_PROG_CC
 AC_CHECK_PROG(AR, ar, ar, ar)
 AC_PROG_RANLIB
 
+AC_MINIX
+AC_CHECK_HEADERS(unistd.h stdlib.h string.h)
+BASH_CHECK_GETPW_FUNCS
+
 AC_OUTPUT(Makefile)

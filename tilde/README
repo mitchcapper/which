@@ -1,7 +1,7 @@
 This directory was copied from bash-2.03.
 
-I then added the files Makefile.am and configure.in and generated all
-the files that are generated from those ;).
+I then added the files Makefile.am, configure.in, acinclude.m4 and and
+acconfig.h and generated all the files that are generated from those ;).
 
 The original README reads:
 
