@@ -20,11 +20,7 @@
 #include "sys.h"
 #include <stdio.h>
 #include "getopt.h"
-#if defined(HAVE_READLINE_TILDE_H) && !defined(NEED_TILDE_EXPAND)
-#include <readline/tilde.h>	/* Part of libreadline that comes with binutils */
-#else
-extern char *tilde_expand(const char *);
-#endif
+#include "tilde/tilde.h"
 #include "bash.h"
 
 static const char *progname;
@@ -409,24 +405,3 @@ void *xrealloc(void *ptr, size_t size)
   return ptr;
 }
 #endif /* NEED_XMALLOC */
-
-#ifdef NEED_TILDE_EXPAND
-char *tilde_expand(const char *path)
-{
-  char *ptr;
-  if (path[0] == '~')
-  {
-    if (path[1] == '/')
-    {
-      ptr = (char *)xmalloc(homelen + strlen(path));
-      strcpy(ptr, home);
-      strcat(ptr, &path[2]);
-      return ptr;
-    }
-    fprintf(stderr, "%s: WARNING - this utility was compiled without libreadline, can not expand tilde in \"%s\"\n", progname, path);
-  }
-  ptr = (char *)xmalloc(strlen(path) + 1);
-  strcpy(ptr, path);
-  return ptr;
-}
-#endif /* NEED_TILDE_EXPAND */
