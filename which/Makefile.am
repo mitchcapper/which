@@ -4,7 +4,7 @@ which_SOURCES = getopt.c getopt1.c bash.c which.c \
 LDADD = $(top_builddir)/tilde/libtilde.a
 man_MANS = which.1
 BUILT_SOURCES = README EXAMPLES
-EXTRA_DIST = $(man_MANS) $(BUILT_SOURCES)
+EXTRA_DIST = $(man_MANS) $(BUILT_SOURCES) README.alias
 SUBDIRS = tilde
 
 DISTCLEANFILES=config.cache config.log config.h
