@@ -356,7 +356,8 @@ enum opts {
 int main(int argc, char *argv[])
 {
   const char *path_list = getenv("PATH");
-  int short_option, long_option, fail_count = 0;
+  int short_option, fail_count = 0;
+  static int long_option;
   struct option longopts[] = {
     {"version", 0, &long_option, opt_version},
     {"skip-dot", 0, &long_option, opt_skip_dot},
