@@ -3,7 +3,7 @@ which_SOURCES = getopt.c getopt1.c bash.c which.c \
 		bash.h sys.h getopt.h posixstat.h
 LDADD = $(top_builddir)/tilde/libtilde.a
 man_MANS = which.1
-BUILT_SOURCES = README EXAMPLES
+BUILT_SOURCES = README EXAMPLES aclocal.m4
 EXTRA_DIST = $(man_MANS) $(BUILT_SOURCES)
 SUBDIRS = tilde
 
@@ -20,6 +20,7 @@ MAINTAINERCLEANFILES=aclocal.m4 Makefile.in config.h.in stamp-h.in configure \
 ## Can't put this in the maintMakefile for some reason.
 maintainer-clean-local:
 	echo "all:" > Makefile
+	echo -e "\t(cd tilde; $(MAKE) all)" >> Makefile
 	echo -e "\tautoheader" >> Makefile
 	echo -e "\tautomake --foreign" >> Makefile
 	echo -e "\taclocal" >> Makefile
