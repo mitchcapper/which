@@ -49,7 +49,7 @@ check)
 generate)
   perform_test;
   cp .testout ../EXAMPLES;
-  mv .testout .testreference;
+  mv .testout .reference;
  exit 0;
  ;;
 *)
