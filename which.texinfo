@@ -256,9 +256,11 @@ which   (alias | /usr/bin/which -i !*)
 @c !BEGIN BUGS
 The @env{HOME} directory is determined by looking for the @env{HOME}
 environment variable, which aborts when this variable
-doesn't exist. @command{Which} will consider two equivalent directories
+doesn't exist.  @command{Which} will consider two equivalent directories
 to be different when one of them contains a path
-with a symbolic link.
+with a symbolic link.  Shell functions are not supported yet.  When
+the given @file{programname} is a shell function (or shell builtin), then
+@command{which} will fail.
 @c !END BUGS
 
 @node    See Also, Index, Bugs, Top
