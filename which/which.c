@@ -49,6 +49,7 @@ static void print_fail(const char *progname, const char *name, const char *path_
 }
 
 static int absolute_path_given;
+static int found_path_starts_with_dot;
 static char *abs_path;
 
 static int skip_dot = 0, skip_tilde = 0, show_all = 0;
@@ -121,6 +122,8 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
       free(path);
       continue;
     }
+
+    found_path_starts_with_dot = (*path == '.');
 
     full_path = make_full_pathname(path, name, name_len);
     free(path);
@@ -325,7 +328,7 @@ int main(int argc, char *argv[])
 	if (result)
 	{
 	  const char *full_path = path_clean_up(result);
-	  if (show_dot && !strncmp(full_path, cwd, cwdlen))
+	  if (show_dot && found_path_starts_with_dot && !strncmp(full_path, cwd, cwdlen))
 	  {
 	    full_path += cwdlen;
 	    fprintf(stdout, "./");
