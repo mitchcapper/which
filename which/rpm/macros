@@ -3,7 +3,6 @@
 %_distribution http://www.xs4all.nl/~carlo17/which/
 %vendor Carlo Wood
 %_topdir /home/carlo/c/which/rpm
-
 %_pgp_path /home/carlo/pgp
 %_signature pgp5
 %_pgp_name carlo@alinoe.com

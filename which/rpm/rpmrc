@@ -1,5 +1,3 @@
-macrofiles: /usr/lib/rpm/macros:rpm/macros
-
+macrofiles: /usr/lib/rpm/macros:/home/carlo/c/which/rpm/macros
 buildarchtranslate: i686: i386
 optflags: i386 -O6 -fno-strength-reduce -fomit-frame-pointer
-
