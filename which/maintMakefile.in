@@ -11,7 +11,7 @@
 # GNU awk
 # GNU date
 # GNU groff
-# rpm-3.x (RedHat-6.x)
+# rpm-4.x (RedHat-7.x)
 # texinfo2man.c (I'll make this available via my home page)
 # texi2html
 # cvs2html
@@ -108,13 +108,13 @@ texinfo2man: ../indent/texinfo2man.c
 @PACKAGE@.lsm: @PACKAGE@.lsm.in configure.in
 	sed -e 's%!VERSION!%'`grep 's%@VERSION' config.status | cut -d% -f3`'%g' @PACKAGE@.lsm.in > @PACKAGE@.lsm
 
-tar:
-	$(MAKE) dist
-	mv @PACKAGE@-@VERSION@.tar.gz $(REDHAT)/SOURCES
+rpm: dist $(SPECFILE) $(LSMFILE)
+	mv @PACKAGE@-@VERSION@.tar.gz $(RPMDIR)/SOURCES
+	cd rpm; rpm --rcfile=/usr/lib/rpm/rpmrc:rpmrc --sign --clean -ba ../$(SPECFILE)
 
-rpm: tar $(SPECFILE)
-	cp rpm/profile.d/which-2.* $(REDHAT)/SOURCES
-	rpm --rcfile /usr/lib/rpm/rpmrc:rpm/rpmrc --target=$(TARGET) --sign --clean -ba $(SPECFILE)
+reconfig: $(top_builddir)/config.status
+	$(top_builddir)/config.status --recheck
+	$(top_builddir)/config.status
 
 cvslog:
 	@( \
@@ -143,10 +143,15 @@ $(SPECFILE): $(SPECFILE).in configure.in
 	grep -A2000 '!CHANGELOG!' $(SPECFILE).in | grep -v '!CHANGELOG!' >> $(SPECFILE)
 
 ChangeLog:
-	@( echo "`which --skip-dot cvs` \`echo \"\$$*\" | sed -e 's%1970%1990%'\`" > cvs; \
-	chmod 755 cvs; )
-	PATH=.:$$PATH rcs2log > ChangeLog
-	@rm cvs
+	if test $(CVSREADACCESS) = yes; then \
+	echo "`which --skip-dot cvs` \`echo \"\$$*\" | sed -e 's%1970%1990%'\`" > cvs; \
+	chmod 755 cvs; \
+	  here=`pwd`; \
+	  (cd $(srcdir); PATH="$$here:$$PATH" rcs2log) > ChangeLog; \
+	  rm cvs; \
+	else \
+	  touch ChangeLog; \
+	fi
 
 release: cvslog tar html @PACKAGE@.lsm rpm NEWS
 	install -m 644 $(REDHAT)/SRPMS/@PACKAGE@-@VERSION@-$(REL).src.rpm $(WWWDIR)
