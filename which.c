@@ -286,14 +286,19 @@ int main(int argc, char *argv[])
   if (show_dot)
     get_current_working_directory();
 
-  if (show_tilde)
+  if (show_tilde || skip_tilde)
   {
     const char *h;
 
     if (!(h = getenv("HOME")))
     {
-      fprintf(stderr, "%s: --show-tilde: Environment variable HOME not set\n", progname);
-      show_tilde = 0;
+      fprintf(stderr, "%s: ", progname);
+      if (show_tilde)
+	fprintf(stderr, "--show-tilde");
+      else
+	fprintf(stderr, "--skip-tilde");
+      fprintf(stderr, ": Environment variable HOME not set\n");
+      show_tilde = skip_tilde = 0;
     }
     else
     {
@@ -323,9 +328,11 @@ int main(int argc, char *argv[])
 
     if (path_list && *path_list != '\0')
     {
+      int next;
       path_index = 0;
       do
       {
+        next = show_all;
 	result = find_command_in_path(*argv, path_list, &path_index);
 	if (result)
 	{
@@ -335,17 +342,27 @@ int main(int argc, char *argv[])
 	    full_path += cwdlen;
 	    fprintf(stdout, "./");
 	  }
-	  else if (show_tilde && !strncmp(full_path, home, homelen))
+	  else if ((show_tilde || skip_tilde) && !strncmp(full_path, home, homelen))
 	  {
-	    full_path += homelen;
-	    fprintf(stdout, "~/");
+	    if (skip_tilde)
+	    {
+	      next = 1;
+	      continue;
+	    }
+	    if (show_tilde)
+	    {
+	      full_path += homelen;
+	      fprintf(stdout, "~/");
+	    }
 	  }
 	  fprintf(stdout, "%s\n", full_path);
 	  free(result);
 	  found_something = 1;
 	}
+	else
+	  break;
       }
-      while(show_all && result);
+      while(next);
     }
     if (!found_something)
     {
