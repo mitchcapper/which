@@ -1,8 +1,9 @@
+#! /bin/bash
 umask 022
-unalias which
 export PATH=".:~/bin:/bin:/usr/bin"
 export HOME=`(cd ~; pwd)`
 touch cat; chmod 755 cat; pwd
+alias
 
 which
 
@@ -63,7 +64,7 @@ which ./xxx
 id
 ls -l xxx
 /usr/local/bin/su0 /bin/chmod 750 xxx
-/usr/local/bin/su0 /bin/chgrp libr xxx
+/usr/local/bin/su0 /bin/chgrp carlo xxx
 which ./xxx
 
 /usr/local/bin/su0 /bin/chgrp bin xxx
