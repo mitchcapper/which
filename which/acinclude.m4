@@ -10,7 +10,12 @@ dnl just for library $1.  Separate tests with the same $1 and different $2s
 dnl may have different results.
 ac_lib_var=`echo $1['_']$2 | sed 'y%./+-%__p_%'`
 AC_CACHE_VAL(ac_cv_lib_static_$ac_lib_var,
-for path in /lib /usr/lib `cat /etc/ld.so.conf`; do
+if test -r /etc/ld.so.conf ; then
+  ld_so_paths="/lib /usr/lib `cat /etc/ld.so.conf`"
+else
+  ld_so_paths="/lib /usr/lib"
+fi
+for path in $ld_so_paths; do
   [ac_save_LIBS="$LIBS"
   LIBS="$path/$1 $5 $LIBS"
   AC_TRY_LINK(dnl

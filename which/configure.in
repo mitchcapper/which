@@ -27,8 +27,8 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_FUNCS(strchr memcpy)
-AC_CHECK_HEADERS(unistd.h string.h libintl.h libiberty.h readline/tilde.h)
+AC_CHECK_FUNCS(strchr memcpy getopt_long)
+AC_CHECK_HEADERS(unistd.h string.h libiberty.h readline/tilde.h)
 AC_HEADER_STAT
 
 dnl Checks for typedefs, structures, and compiler characteristics.
