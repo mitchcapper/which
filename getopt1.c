@@ -21,6 +21,8 @@
 #include <config.h>
 #endif
 
+#ifndef HAVE_GETOPT_LONG
+
 #include "getopt.h"
 
 #if !defined (__STDC__) || !__STDC__
@@ -91,6 +93,7 @@ getopt_long_only (argc, argv, options, long_options, opt_index)
 
 
 #endif	/* Not ELIDE_CODE.  */
+#endif  /* Not HAVE_GETOPT_LONG.  */
 
 #ifdef TEST
 

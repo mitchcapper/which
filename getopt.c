@@ -31,6 +31,8 @@
 #include <config.h>
 #endif
 
+#ifndef HAVE_GETOPT_LONG
+
 #if !defined (__STDC__) || !__STDC__
 /* This is a separate conditional since some stdc systems
    reject `defined (const)'.  */
@@ -232,6 +234,10 @@ my_index (str, chr)
 /* gcc with -traditional declares the built-in strlen to return int,
    and has done so at least since version 2.4.5. -- rms.  */
 extern int strlen (const char *);
+#else
+#if HAVE_STRING_H
+#include <string.h>
+#endif
 #endif /* not __STDC__ */
 #endif /* __GNUC__ */
 
@@ -976,6 +982,7 @@ getopt (argc, argv, optstring)
 }
 
 #endif	/* Not ELIDE_CODE.  */
+#endif  /* Not HAVE_GETOPT_LONG.  */
 
 #ifdef TEST
 
