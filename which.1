@@ -37,8 +37,26 @@ directories listed in the environment variable
 using the same algorithm as bash(1).
 .SH OPTIONS
 .TP 4
-.B "\-\-version, \-v, \-V"
-Print version information on standard output then exit successfully.
+.B "\-\-all, \-a"
+Print
+.I all
+matching executables in PATH, not just the first.
+.TP
+.B "\-\-read\-alias, \-i"
+Read aliases from stdin, reporting matching ones on stdout.
+This is useful in combination with using an alias for
+.B which
+itself. For example
+.IR "alias\ which='alias\ |\ which -i'" .
+.TP
+.B "\-\-skip-alias"
+Ignore option
+.BR "\-\-read-alias" ,
+if any.  This is useful to explicity search for normal binaries, while
+using the
+.B "\-\-read-alias"
+option in an alias for
+.BR which .
 .TP
 .B "\-\-skip-dot"
 Skip directories in
@@ -66,10 +84,8 @@ is invoked as root.
 .B "\-\-tty\-only"
 Stop processing options on the right if not on tty.
 .TP
-.B "\-\-all, \-a"
-Print
-.I all
-matching executables in PATH, not just the first.
+.B "\-\-version, \-v, \-V"
+Print version information on standard output then exit successfully.
 .SH RETURN VALUE
 .BR Which
 returns the number of failed arguments, or -1 when no
@@ -89,13 +105,27 @@ while still printing the full path when used from a script:
 ~/bin/q2
 > echo `which q2`
 /home/carlo/bin/q2
-.RE
-.SH BUGS
-If
-.I programname
-is an alias which starts a different executable, then
+.Ex
+Aliases are supported also through the use of an alias for
 .B which
-will give the wrong path; it doesn't do alias expansion.
+itself.  An example alias for
+.B which
+that is using this feature is as follows:
+.Sx 1
+alias which='alias | which --tty-only --read-alias --show-tilde --show-dot'
+.Ex
+This will print the output of
+.B alias
+for each alias that matches one of the given arguments.  For example, using
+this alias on itself in a
+. IR tcsh :
+.Sx 4
+$ alias which alias \\| /usr/bin/which -i !\\*
+$ which which
+which   (alias | ./which -i !*)
+        /usr/bin/which
+.Ex
+.SH BUGS
 The HOME directory is determined by looking for the HOME environment
 variable,
 .B which

@@ -188,6 +188,6 @@ EXAMPLES: which
 
 README: which.1 README.in configure.in
 	sed -e 's%!VERSION!%@VERSION@%g' README.in > README
-	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 60 | tail -n 57 >> README
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 61 | tail -n 58 >> README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> README
 
