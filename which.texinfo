@@ -151,8 +151,7 @@ the @option{--read-alias} option in an alias or function for which.
 Read shell function definitions from stdin, reporting matching
 ones on stdout. This is useful in combination with using a shell
 function for which itself.  For example:@*
-@code{which() @{ declare -f | which --read-functions $@@ @}
-export -f which}
+@code{which() @{ declare -f | which --read-functions $@@ @}@*export -f which}
 
 @cindex @option{--skip-functions}
 @item --skip-functions
