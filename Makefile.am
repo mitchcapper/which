@@ -7,4 +7,5 @@ clean-local:
 
 maintainer-clean-local:
 	rm -f Makefile.in README config.h aclocal.m4 index.html \
-	    configure config.cache config.log stamp-h.in
+	    configure config.cache config.log stamp-h.in cvslog-2.*.html \
+	    ChangeLog config.h.in which-2.spec EXAMPLES
