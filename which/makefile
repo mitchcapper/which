@@ -27,6 +27,7 @@ setup-dist: ChangeLog
 	automake
 	aclocal
 	autoconf
+	autoheader
 	configure --prefix=/usr
 
 release: tar index.html cvslog rpm
