@@ -29,6 +29,7 @@ static void print_usage(void)
 {
   fprintf(stderr, "Usage: %s [options] [--] programname [...]\n", progname);
   fprintf(stderr, "Options: --version, -[vV] Print version and exit successfully.\n");
+  fprintf(stderr, "         --help,          Print this help and exit successfully.\n");
   fprintf(stderr, "         --skip-dot       Skip directories in PATH that start with a dot.\n");
   fprintf(stderr, "         --skip-tilde     Skip directories in PATH that start with a tilde.\n");
   fprintf(stderr, "         --show-dot       Don't expand a dot to current directory in output.\n");
@@ -350,7 +351,8 @@ enum opts {
   opt_skip_alias,
   opt_show_dot,
   opt_show_tilde,
-  opt_tty_only
+  opt_tty_only,
+  opt_help
 };
 
 int main(int argc, char *argv[])
@@ -359,6 +361,7 @@ int main(int argc, char *argv[])
   int short_option, fail_count = 0;
   static int long_option;
   struct option longopts[] = {
+    {"help", 0, &long_option, opt_help},
     {"version", 0, &long_option, opt_version},
     {"skip-dot", 0, &long_option, opt_skip_dot},
     {"skip-tilde", 0, &long_option, opt_skip_tilde},
@@ -379,6 +382,9 @@ int main(int argc, char *argv[])
       case 0:
 	switch (long_option)
 	{
+	  case opt_help:
+	    print_usage();
+	    return 0;
 	  case opt_version:
 	    print_version();
 	    return 0;
