@@ -37,7 +37,7 @@ perform_test () {
 case "$1" in
 check)
  perform_test;
- if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' ../EXAMPLES .testout ; then
+ if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' .reference .testout ; then
    rm -f .testout;
    echo "Check successful!"
    exit 0;
@@ -49,7 +49,7 @@ check)
 generate)
   perform_test;
   cp .testout ../EXAMPLES;
-  rm -f .testout;
+  mv .testout .testreference;
  exit 0;
  ;;
 *)
