@@ -1,4 +1,9 @@
-This directory was copied from bash-2.03.  The original README reads:
+This directory was copied from bash-2.03.
+
+I then added the files Makefile.am and configure.in and generated all
+the files that are generated from those ;).
+
+The original README reads:
 
 -------------------------------------------------------------------------
 If you're building this separately from bash or the readline library, add
