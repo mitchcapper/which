@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     if (!getcwd(cwd, sizeof(cwd)))
     {
       const char *pwd = getenv("PWD");
-      if (!pwd)
+      if (!pwd || strlen(pwd) >= sizeof(cwd))
 	strcpy(cwd, ".");
       else
 	strcpy(cwd, pwd);
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     const char *result = NULL;
     if (path_list && *path_list != '\0')
     {
-      result = find_user_command_in_path(*argv, path_list, FS_EXECABLE);
+      result = find_user_command_in_path(*argv, path_list, FS_EXEC_ONLY);
       if (result)
       {
         if (!show_dot && *result == '.')
