@@ -29,10 +29,10 @@ release: tar cvslog
 	install -m 644 -o carlo index.html /home/carlo/www/which
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
 
-tar: README index.html
+tar: ChangeLog README index.html
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
-	cp -p README index.html Makefile.in configure aclocal.m4 stamp-h.in /tmp/which-$(VER)
+	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
 	  if [ "$$i" != "." ]; then \
@@ -65,3 +65,10 @@ index.html: EXAMPLES which.1 index.html.in
 
 cvslog:
 	cvs2html -e -D2 -o cvslog-$(VER)
+
+.PHONY: ChangeLog
+ChangeLog:
+	@( echo "/usr/local/bin/cvs \`echo \"\$$*\" | sed -e 's%1970%1990%'\`" > cvs; \
+	    chmod 755 cvs; )
+	rcs2log > ChangeLog
+	@rm cvs
