@@ -1,0 +1,22 @@
+Begin3
+Title: which
+Version: 2.0
+Entered-date: 1999-04-06
+Description: Which is a utility that prints out the full path of the
+	     executables that bash(1) would execute when the passed
+	     program names would have been entered on the shell prompt.
+	     It does this by using the exact same algorithm as bash.
+	     The most important difference with version 1.0 is that
+	     now directories do NOT match anymore.  Tildes and a dot
+	     in the PATH are now expanded to the full path by default.
+Keywords: which utility directory path executable bash
+Author: carlo@runaway.xs4all.nl (Carlo Wood)
+Maintained-by: carlo@runaway.xs4all.nl (Carlo Wood)
+Primary-site: http://www.xs4all.nl/~carlo17/which/
+Home-page: http://www.xs4all.nl/~carlo17/which/
+Original-site:
+Alternate-site: metalab.unc.edu /pub/Linux/utils/shell/
+Platforms: linux
+Copying-policy: GPL
+End
+

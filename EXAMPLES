@@ -1,0 +1,26 @@
+~>touch cat
+~>chmod 700 cat
+~>which
+Usage: which [options] [--] programname [...]
+Options: --version    Print version and exit successfully.
+         --skip-dot   Skip directories in PATH that start with a dot.
+         --skip-tilde Skip directories in PATH that start with a tilde.
+         --show-dot   Don't expand a dot to current directory in output.
+~>which --version
+GNU which v2.0 -- by Carlo Wood
+~>which cat
+/home/carlo/cat
+~>which --show-dot cat
+./cat
+~>which --show-dot --skip-dot cat
+/bin/cat
+~>which -- --version
+which: no --version in (.:/home/carlo/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/X11R6/bin:/usr/X11R6/bin:/opt/kde/bin:/usr/local/share/prototype/scripts:/usr/local/java/bin)
+~>ls -ld man
+drwx------   4 carlo    root         1024 Sep 23  1997 man/
+~>which man
+/usr/bin/man
+~>touch notexec
+~>which notexec
+which: no notexec in (.:/home/carlo/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/X11R6/bin:/usr/X11R6/bin:/opt/kde/bin:/usr/local/share/prototype/scripts:/usr/local/java/bin)
+
