@@ -191,4 +191,4 @@ EXAMPLES: which
 README: which.1 README.in configure.in
 	sed -e 's%!VERSION!%'`grep 's%@VERSION' config.status | cut -d% -f3`'%g' README.in > README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 61 | tail -n 58 >> README
-	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> README
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 123 | tail -n 51 | grep -B2000 '^ ' >> README
