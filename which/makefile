@@ -57,7 +57,7 @@ tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README i
 	rm /tmp/which-$(VER)/README.in /tmp/which-$(VER)/index.html.in
 	rm /tmp/which-$(VER)/.indent.pro /tmp/which-$(VER)/index.html
 	rm /tmp/which-$(VER)/which-2.spec.in
-	rm -rf /tmp/which-$(VER)/rpm
+	rm -rf /tmp/which-$(VER)/rpm /tmp/which-$(VER)/test
 	tar czf $(REDHAT)/SOURCES/which-$(VER).tar.gz -C /tmp which-$(VER)
 	rm -rf /tmp/which-$(VER)
 
@@ -110,6 +110,10 @@ which-2.spec: which-2.spec.in
 	    } \
 	  } else if ($$0~/^[A-Z]/) { printf("- %s\n", $$0); } else if ($$0~/./) { printf("  %s\n", $$0); } else {print} }' >> which-2.spec
 	grep -A2000 '@CHANGELOG@' which-2.spec.in | grep -v '@CHANGELOG@' >> which-2.spec
+
+EXAMPLES: which
+	( cd test; whichtest check; ) || exit -1;
+	( cd test; whichtest generate; )
 
 .PHONY: ChangeLog
 ChangeLog:

@@ -1,0 +1,61 @@
+#! /bin/bash
+
+perform_test () {
+  (
+    cd /home/carlo/c/which
+    unalias which
+    export PATH=".:~/bin:/bin:/usr/bin"
+    export HOME=`(cd ~; pwd)`
+    awk --assign is_root=0 '{
+      if ($$0 == "") print
+      else if ($$0~/^\/usr\/local\/bin\/su0 \/bin\//)
+      {
+	system($$0" 2>&1");
+	if (is_root == 0)
+	{
+	  printf(">su\n");
+	  is_root=1;
+	}
+	sub("^\/usr\/local\/bin\/su0 \/bin\/", "");
+	printf(">%s\n", $$0);
+      }
+      else
+      {
+	if (is_root == 1)
+	{
+	  printf(">exit\n");
+	  is_root=0;
+	}
+	printf(">%s\n", $$0);
+	system($$0" 2>&1");
+      }
+    }' test/commands > test/.testout;
+    /usr/local/bin/su0 /bin/rm -f cat xxx;
+  )
+}
+
+case "$1" in
+check)
+ perform_test;
+ if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' ../EXAMPLES .testout ; then
+   rm -f .testout;
+   echo "Check successful!"
+   exit 0;
+ else
+   echo "Check failed!";
+   exit -1;
+ fi
+ ;;
+generate)
+  perform_test;
+  cp .testout ../EXAMPLES;
+  rm -f .testout;
+ exit 0;
+ ;;
+*)
+  echo "Usage:"
+  echo "  $0 check   : Run a test"
+  echo "  $0 generate: Generates the reference to run the check against"
+  exit 0;
+  ;;
+esac
