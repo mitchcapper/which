@@ -13,7 +13,7 @@ The which command shows the full pathname of a specified program, if
 the specified program is in your PATH.
 
 %prep
-%setup -n which
+%setup
 
 %build
 make prefix=/usr
