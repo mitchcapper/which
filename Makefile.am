@@ -21,11 +21,10 @@ MAINTAINERCLEANFILES=aclocal.m4 Makefile.in config.h.in stamp-h.in configure \
 maintainer-clean-local:
 	echo "all:" > Makefile
 	echo -e "\t(cd tilde; $(MAKE) all)" >> Makefile
-	echo -e "\tautoheader" >> Makefile
 	echo -e "\taclocal" >> Makefile
-	echo -e "\tautomake --foreign" >> Makefile
-	echo -e "\tautoconf" >> Makefile
 	echo -e "\tautoheader" >> Makefile
+	echo -e "\tautoconf" >> Makefile
+	echo -e "\tautomake --foreign" >> Makefile
 	echo -e "\tconfigure --enable-maintainer-mode" >> Makefile
 
 ## Can someone tell me what I am doing wrong, why do I need this?
