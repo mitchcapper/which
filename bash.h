@@ -1,7 +1,7 @@
 #define FS_EXISTS		0x1
 #define FS_EXECABLE		0x2
 
-#define savestring(x) (char *)strcpy (xmalloc (1 + strlen (x)), (x))
+#define savestring(x) (char *)strcpy(xmalloc(1 + strlen (x)), (x))
 
 extern int file_status (const char *name);
 extern int absolute_program (const char *string);

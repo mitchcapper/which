@@ -1,5 +1,5 @@
 /*
- * which v2.1 -- print full path of executables
+ * which v2.x -- print full path of executables
  * Copyright (C) 1999  Carlo Wood <carlo@runaway.xs4all.nl>
  *
  * This program is free software; you can redistribute it and/or
@@ -17,13 +17,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "sys.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <getopt.h>
-#include <string.h>
-#include <libiberty.h>
-#include <readline/tilde.h>
+#include <libiberty.h>       /* Part of libiberty.a that comes with binutils */
+#include <readline/tilde.h>  /* Part of libreadline that comes with binutils */
 #include "bash.h"
 
 static void print_usage(const char *progname)
@@ -40,7 +38,7 @@ static void print_usage(const char *progname)
 
 static void print_version(void)
 {
-  fprintf(stdout, "GNU which v2.1, Copyright (C) 1999 Carlo Wood.\n");
+  fprintf(stdout, "GNU which v" VERSION ", Copyright (C) 1999 Carlo Wood.\n");
   fprintf(stdout, "GNU which comes with ABSOLUTELY NO WARRANTY;\n");
   fprintf(stdout, "This program is free software; your freedom to use, change\n");
   fprintf(stdout, "and distribute this program is covered by the GPL.\n");
