@@ -403,6 +403,13 @@ enum opts {
   opt_help
 };
 
+#ifdef __TANDEM
+/* According to Tom Bates, <tom.bates@hp.com> */
+static uid_t const superuser = 65535;
+#else
+static uid_t const superuser = 0;
+#endif
+
 int main(int argc, char *argv[])
 {
   const char *path_list = getenv("PATH");
@@ -451,7 +458,7 @@ int main(int argc, char *argv[])
 	    show_dot = !tty_only;
 	    break;
 	  case opt_show_tilde:
-	    show_tilde = (!tty_only && geteuid() != 0);
+	    show_tilde = (!tty_only && geteuid() != superuser);
 	    break;
 	  case opt_tty_only:
 	    tty_only = !isatty(1);
