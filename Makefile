@@ -12,4 +12,4 @@ install:
 	install    -o root -m 644 -g root which.1 $(prefix)/man/man1
 
 clean:
-	rm -f core *.orig *.o which troep cvslog*
+	rm -f core *.orig *.o which troep cvslog* which-2.*.tar.gz
