@@ -1,0 +1,71 @@
+umask 022
+unalias which
+export PATH=".:~/bin:/bin:/usr/bin"
+export HOME=`(cd ~; pwd)`
+touch cat; chmod 755 cat; pwd
+
+which
+
+which --version
+
+which -- --version
+
+which cat
+
+which --show-tilde cat
+
+which --show-dot cat
+
+which --show-tilde --show-dot cat
+
+which --skip-dot cat
+
+(cd /bin; which cat)
+
+(cd /bin; which --show-dot cat)
+
+(cd /bin; PATH=".:/bin:/usr/bin" which --show-dot cat)
+
+(cd /bin; PATH="/bin:.:/usr/bin" which --show-dot cat)
+
+(cd /bin; PATH=".:/bin:/usr/bin" which --skip-dot --show-dot cat)
+
+which ls
+
+which xxx
+
+which ./ls
+
+(cd /; which bin/ls)
+
+(cd /; which --show-dot bin/ls)
+
+(cd /; which --show-dot /bin/ls)
+
+(cd /; which --show-dot bin/xxx)
+
+(cd /; which --show-dot /bin/xxx)
+
+which --all cat
+
+touch xxx
+which ./xxx
+
+chmod 711 xxx
+which ./xxx
+
+/usr/local/bin/su0 /bin/chown root xxx
+which ./xxx
+
+/usr/local/bin/su0 /bin/chmod 700 xxx
+which ./xxx
+
+id
+ls -l xxx
+/usr/local/bin/su0 /bin/chmod 750 xxx
+/usr/local/bin/su0 /bin/chgrp libr xxx
+which ./xxx
+
+/usr/local/bin/su0 /bin/chgrp bin xxx
+which ./xxx
+
