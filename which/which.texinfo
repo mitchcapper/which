@@ -50,7 +50,7 @@ original English.
 @subtitle Edition @value{EDITION}, for Which Version @value{VERSION}
 @subtitle @value{UPDATED}
 @c !BEGIN AUTHORS
-@author Carlo Wood <@email{carlo@gnu.org}>
+@author Carlo Wood <@email{carlo@@gnu.org}>
 @c !END AUTHORS
 @page
 @vskip 0pt plus 1filll
