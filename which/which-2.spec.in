@@ -2,29 +2,31 @@ Summary: Displays where a particular program in your path is located.
 Name: which
 Version: !VERSION!
 Release: 1
-Copyright: distributable
+License: GPL
 Group: Applications/System
-Source0: ftp://ftp.gnu.org/gnu/which/which-!VERSION!.tar.gz
+Source0: ftp://ftp.gnu.org/gnu/which/%{name}-%{version}.tar.gz
 Source1: which-2.sh
 Source2: which-2.csh
-Prefix: /usr
-Buildroot: /var/tmp/which-root
+Prefix: %{_prefix}
+Buildroot: %{_tmppath}/%{name}-root
 
 %description
 The which command shows the full pathname of a specified program, if
 the specified program is in your PATH.
 
 %prep
-%setup
+%setup -q
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr
+%configure
 make
 
 %install
-make prefix=$RPM_BUILD_ROOT/usr install
+rm -rf $RPM_BUILD_ROOT
+%makeinstall
 mkdir -p $RPM_BUILD_ROOT/etc/profile.d
-install -m 755 $RPM_SOURCE_DIR/which-2.sh $RPM_SOURCE_DIR/which-2.csh $RPM_BUILD_ROOT/etc/profile.d
+install -m 755 $RPM_SOURCE_DIR/which-2.sh $RPM_SOURCE_DIR/which-2.csh \
+	$RPM_BUILD_ROOT/etc/profile.d
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -32,9 +34,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc EXAMPLES README
-%attr(-,root,bin) /usr/bin/which
+%{_bindir}/*
 %config /etc/profile.d/which-2.*
-/usr/man/man1/which.1
+%{_mandir}/*/*
 
 !CHANGELOG!
 
