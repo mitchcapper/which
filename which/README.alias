@@ -1,0 +1,6 @@
+If you want `which' to inform you about aliases in bash, then you need to add
+the following line to your $HOME/.bashrc  :
+
+alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+
+This is the recommended use of this `which'.
