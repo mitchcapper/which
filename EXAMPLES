@@ -5,14 +5,14 @@
 /home/carlo/c/which
 
 >which
-Usage: ./which [options] [--] programname [...]
-Options: --version    Print version and exit successfully.
-         --skip-dot   Skip directories in PATH that start with a dot.
-         --skip-tilde Skip directories in PATH that start with a tilde.
-         --show-dot   Don't expand a dot to current directory in output.
-         --show-tilde Output a tilde for HOME directory for non-root.
-         --tty-only   Stop processing options on the right if not on tty.
-         --all, -a    Print all matching executables in PATH, not just the first
+Usage: which [options] [--] programname [...]
+Options: --version, -[vV] Print version and exit successfully.
+         --skip-dot       Skip directories in PATH that start with a dot.
+         --skip-tilde     Skip directories in PATH that start with a tilde.
+         --show-dot       Don't expand a dot to current directory in output.
+         --show-tilde     Output a tilde for HOME directory for non-root.
+         --tty-only       Stop processing options on the right if not on tty.
+         --all, -a        Print all matches in PATH, not just the first
 
 >which --version
 GNU which v2.3, Copyright (C) 1999 Carlo Wood.
