@@ -26,7 +26,7 @@ setup-dist:
 	automake
 	aclocal
 	autoconf
-	@echo "Next run ./configure with the appropriate options"
+	configure --prefix=/usr
 
 release: tar index.html cvslog rpm
 	install -m 644 -o carlo $(REDHAT)/SRPMS/which-$(VER)-$(REL).src.rpm /home/carlo/www/which
