@@ -490,6 +490,9 @@ int main(int argc, char *argv[])
 	  case opt_read_functions:
 	    read_functions = 1;
 	    break;
+	  case opt_skip_functions:
+	    skip_functions = 1;
+	    break;
 	}
 	break;
       case 'a':
