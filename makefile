@@ -9,7 +9,7 @@
 include Makefile
 
 MAJOR_VERSION=2
-MINOR_VERSION=0
+MINOR_VERSION=1
 VER:=$(MAJOR_VERSION).$(MINOR_VERSION)
 REL=1
 
@@ -25,7 +25,7 @@ release: tar
 	  rm makefile.bak; \
 	)
 
-tar:
+tar: README
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS -print`; do \
@@ -39,6 +39,12 @@ tar:
 	done; \
 	)
 	rm /tmp/which-$(VER)/.cvsignore /tmp/which-$(VER)/makefile
+	rm /tmp/which-$(VER)/README.in
 	rm -rf /tmp/which-$(VER)/rpm
 	tar czf which-$(VER).tar.gz -C /tmp which-$(VER)
 	rm -rf /tmp/which-$(VER)
+
+README: which.1 README.in
+	cp README.in README
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 59 | tail -n 56 >> README
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> README

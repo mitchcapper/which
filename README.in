@@ -1,0 +1,19 @@
+Install
+=======
+
+You will need an ANSI C compiler (like gcc or egcs) to compile
+this package.
+
+Just type `make', followed by `make install'.
+
+History
+=======
+
+The main difference with version 1.0 by Paul Vixie is that this
+version will not return directory names as being executables
+and that by default it will expand a leading "./" and "~/" to
+its full path on output.
+
+Manual page
+===========
+

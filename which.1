@@ -1,4 +1,26 @@
 .TH WHICH 1
+.rn RS Rs
+.de RS
+.na
+.nf
+.Rs
+..
+.rn RE Re
+.de RE
+.Re
+.fi
+.ad
+..
+.de Sx
+.PP
+.ne \\$1
+.RS
+..
+.de Ex
+.RE
+.PP
+..
+.na
 .SH NAME
 which \- show full path of commands
 .SH SYNOPSIS
@@ -33,9 +55,36 @@ If a directory in
 .B PATH
 start with a dot and a matching executable was found for that path,
 then print "./programname" rather than the full path.
+.TP
+.B "\-\-show-tilde"
+Output a tilde when a directory matches the
+.B HOME
+directory.  This option is ignored when
+.B which
+is invoked as root.
+.TP
+.B "\-\-tty\-only"
+Stop processing options on the right if not on tty.
 .SH RETURN VALUE
 .BR Which
-returns the number of failed arguments, or -1 when no programname was given.
+returns the number of failed arguments, or -1 when no
+.I programname
+was given.
+.SH EXAMPLE
+A useful way to use this utility is by adding an alias for
+.B which
+like the following:
+.Sx 1
+alias which='which --tty-only --show-tilde --show-dot'
+.Ex
+This will print the readable ~/ and ./ when starting which from your prompt,
+while still printing the full path when used from a script:
+.Sx 4
+> which q2
+~/bin/q2
+> echo `which q2`
+/home/carlo/bin/q2
+.RE
 .SH AUTHOR
 Carlo Wood (carlo@runaway.xs4all.nl)
 .SH "SEE ALSO"
