@@ -1,3 +1,14 @@
+Version 2.15 --> 2.16
+
+* This release fixes the bug, introduced in 2.15, that files for
+  which the 'other' permission bits apply do NOT need to be readable.
+  (The confusion came from the fact that it needs to be readable
+  when it is a shell script but there is no way to find out if a
+  non-readable file is a shell script or not.)
+  The next release of bash will be using the same algorithm again,
+  and that is the only thing that really matters.  This is also the
+  algorithm that most other shells use.
+
 Version 2.14 --> 2.15
 
 * Upgraded build system to work with automake 1.7.2 and autoconf 2.57.

@@ -234,9 +234,6 @@ group_member (GID_T gid)
 #define o_mode_bits(x) (((x) & 0000007) >> 0)
 #define X_BIT(x) ((x) & 1)
 
-/* Added myself. */
-#define RX_BITS(x) (((x) & 5) == 5)
-
 /* From bash-2.05b / findcmd.c / line 80 */
 /* Return some flags based on information about this file.
    The EXISTS bit is non-zero if the file is found.
@@ -285,8 +282,9 @@ file_status (char const* name)
     }
 
   /* GNU which comment: The part below was changed to ONLY return FS_EXECABLE
-     when the file is *really* executable.  A bug report has filed with the
-     bash maintainers. */
+     when the file is *really* executable.  A bug report has been filed with
+     the bash maintainers and was accepted, the behaviour of the next bash
+     version (after 2.0.5b) should be the same again. */
   /* If we are the owner of the file, the owner execute bit applies. */
   if (current_user.euid == finfo.st_uid)
     return (X_BIT (u_mode_bits (finfo.st_mode))) ? (FS_EXISTS | FS_EXECABLE) : FS_EXISTS;
@@ -295,9 +293,8 @@ file_status (char const* name)
   if (group_member (finfo.st_gid))
     return (X_BIT (g_mode_bits (finfo.st_mode))) ? (FS_EXISTS | FS_EXECABLE) : FS_EXISTS;
 
-  /* Otherwise, if we are in the other group, the other permissions apply.
-     In this case the file must also be readable in order to be executable. */
-  if (RX_BITS (o_mode_bits (finfo.st_mode)))
+  /* Otherwise, if we are in the other group, the other permissions apply. */
+  if (X_BIT (o_mode_bits (finfo.st_mode)))
     return (FS_EXISTS | FS_EXECABLE);
 
   return (FS_EXISTS);
