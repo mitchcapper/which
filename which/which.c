@@ -46,7 +46,7 @@ static void print_version(void)
   fprintf(stdout, "GNU which v" VERSION ", Copyright (C) 1999 Carlo Wood.\n");
   fprintf(stdout, "GNU which comes with ABSOLUTELY NO WARRANTY;\n");
   fprintf(stdout, "This program is free software; your freedom to use, change\n");
-  fprintf(stdout, "and distribute this program is covered by the GPL.\n");
+  fprintf(stdout, "and distribute this program is protected by the GPL.\n");
 }
 
 static void print_fail(const char *name, const char *path_list)
