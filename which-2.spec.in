@@ -22,7 +22,7 @@ make
 %install
 make prefix=$RPM_BUILD_ROOT/usr install
 mkdir -p $RPM_BUILD_ROOT/etc/profile.d
-install -m 755 -g root -o root $RPM_SOURCE_DIR/which-2.sh $RPM_SOURCE_DIR/which-2.csh $RPM_BUILD_ROOT/etc/profile.d
+install -m 755 $RPM_SOURCE_DIR/which-2.sh $RPM_SOURCE_DIR/which-2.csh $RPM_BUILD_ROOT/etc/profile.d
 
 %clean
 rm -rf $RPM_BUILD_ROOT
