@@ -15,8 +15,8 @@ REL=1
 
 .PHONY: release tar
 
-release: rpm
-	$(install) -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
+release: tar
+	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
 	@( \
 	  MINVER=`echo $(MINOR_VERSION) | awk -- '{ printf ("%d", $$0 + 1) }'`; \
 	  echo "MINOR_VERSION=$$MINVER"; \
