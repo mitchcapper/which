@@ -43,3 +43,11 @@ extern void *xrealloc(void *ptr, size_t size);
 #   define NULL (0x0)
 # endif
 #endif
+
+#ifndef HAVE_GETCWD
+# ifdef HAVE_GETWD
+#   define getcwd(a, b) getwd(a)
+# else
+#   error "You either need getcwd(3) or getwd(3)"
+# endif
+#endif

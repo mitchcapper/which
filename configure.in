@@ -32,7 +32,7 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_TYPE_GETGROUPS
-AC_CHECK_FUNCS(getcwd)
+AC_CHECK_FUNCS(getcwd getwd)
 
 if test "$ac_cv_lib_static_libiberty_a_xmalloc" = no \
      -o "$which_cv_iberty" = no ; then
