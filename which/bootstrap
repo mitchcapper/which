@@ -42,10 +42,12 @@ fi
 #   my $libdir = "/usr/share/automake";
 # OR (automake version 1.6):
 #   my $libdir = "${prefix}/share/automake";
+# OR (automake version 1.7):
+#  my $libdir = '/usr/share/automake-1.7';
 # and then puts "/usr/share/automake" into the variable automake_dir.
 automake_path=`which automake`
 automake_prefix=`egrep '(^my |^)\\$prefix = ' $automake_path | sed -e 's/.*"\(.*\)".*/\1/'`
-automake_tmp=`egrep '(^my \\$libdir|^\\$am_dir) = ' $automake_path | sed -e 's/.*"\(\${prefix}\)\(.*\)".*/$automake_prefix\2/' | sed -e 's/.*"\([^"]*\)".*/\1/'`
+automake_tmp=`egrep '(^my \\$libdir|^\\$am_dir) = ' $automake_path | sed -e 's/.*"\(\${prefix}\)\(.*\)".*/$automake_prefix\2/' | sed -e 's/.*['"'"'"]\([^'"'"'"]*\)['"'"'"].*/\1/'`
 eval "automake_dir=$automake_tmp"
 if test -f $automake_dir/depcomp; then
   automake_files="install-sh missing mkinstalldirs depcomp compile"
