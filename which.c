@@ -59,12 +59,6 @@ enum opts {
 
 int skip_dot = 0, skip_tilde = 0;
 
-/* DOT_FOUND_IN_SEARCH becomes non-zero when find_user_command ()
-   encounters a `.' as the directory pathname while scanning the
-   list of possible pathnames; i.e., if `.' comes before the directory
-   containing the file of interest. */
-static int dot_found_in_search = 0;
-
 /* This does the dirty work for find_path_file () and find_user_command ().
    NAME is the name of the file to search for.
    PATH_LIST is a colon separated list of directories to search.
@@ -90,10 +84,6 @@ const char *find_user_command_in_path(const char *name, const char *path_list, i
      suitable one to execute.  If we cannot find a suitable executable
      file, then we use this one. */
   file_to_lose_on = (char *)NULL;
-
-  /* We haven't started looking, so we certainly haven't seen
-     a `.' as the directory path yet. */
-  dot_found_in_search = 0;
 
   if (absolute_program(name))
   {
@@ -160,12 +150,6 @@ const char *find_user_command_in_path(const char *name, const char *path_list, i
       free(path);
       continue;
     }
-
-    /* Remember the location of "." in the path, in all its forms
-       (as long as they begin with a `.', e.g. `./.') */
-    if (!dot_found_in_search && (*path == '.') &&
-	same_file(".", path, &finfo, (struct stat *)NULL))
-      dot_found_in_search = 1;
 
     full_path = make_full_pathname(path, name, name_len);
     free(path);
