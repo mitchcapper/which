@@ -1,0 +1,15 @@
+--leave-preprocessor-space
+--dont-break-procedure-type
+--no-space-after-function-call-names
+--brace-indent0
+--indent-level2
+--dont-line-up-parentheses
+--continuation-indentation4
+--case-indentation2
+--no-space-after-casts
+--blank-lines-after-procedures
+--no-blank-lines-after-declarations
+--braces-on-struct-decl-line
+--paren-indentation0
+--case-brace-indentation0
+-T GID_T

@@ -1,21 +1,21 @@
 /*
-    which v2.0 -- print full path of executables
-    Copyright (C) 1999  Carlo Wood <carlo@runaway.xs4all.nl>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 1, or (at your option)
-    any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+ * which v2.0 -- print full path of executables
+ * Copyright (C) 1999  Carlo Wood <carlo@runaway.xs4all.nl>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 1, or (at your option)
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,20 +70,19 @@ static int dot_found_in_search = 0;
    PATH_LIST is a colon separated list of directories to search.
    FLAGS contains bit fields which control the files which are eligible.
    Some values are:
-      FS_EXEC_ONLY:             The file must be an executable to be found.
-      FS_EXEC_PREFERRED:        If we can't find an executable, then the
-                                the first file matching NAME will do.
-      FS_EXISTS:                The first file found will do.
-*/
-const char *
-find_user_command_in_path (const char *name, const char *path_list, int flags)
+   FS_EXEC_ONLY:             The file must be an executable to be found.
+   FS_EXEC_PREFERRED:        If we can't find an executable, then the
+   the first file matching NAME will do.
+   FS_EXISTS:                The first file found will do.
+ */
+const char *find_user_command_in_path(const char *name, const char *path_list, int flags)
 {
   char *full_path;
   char *file_to_lose_on;
   int status, path_index, name_len;
   struct stat finfo;
 
-  name_len = strlen (name);
+  name_len = strlen(name);
 
   /* The file name which we would try to execute, except that it isn't
      possible to execute it.  This is the first file that matches the
@@ -96,112 +95,113 @@ find_user_command_in_path (const char *name, const char *path_list, int flags)
      a `.' as the directory path yet. */
   dot_found_in_search = 0;
 
-  if (absolute_program (name))
+  if (absolute_program(name))
+  {
+    full_path = (char *)xmalloc(1 + name_len);
+    strcpy(full_path, name);
+
+    status = file_status(full_path);
+
+    /* If the file doesn't exist, quit now. */
+    if (!(status & FS_EXISTS))
     {
-      full_path = (char *) xmalloc (1 + name_len);
-      strcpy (full_path, name);
-
-      status = file_status (full_path);
-
-      /* If the file doesn't exist, quit now. */
-      if (!(status & FS_EXISTS))
-        {
-          free (full_path);
-          return ((char *)NULL);
-        }
-
-      /* If we only care about whether the file exists or not, return
-         this filename. */
-      if (flags & FS_EXISTS)
-        return (full_path);
-
-      /* Otherwise, maybe we care about whether this file is executable.
-         If it is, and that is what we want, return it. */
-      if ((flags & FS_EXEC_ONLY) && (status & FS_EXECABLE))
-        return (full_path);
-      else
-        {
-          free (full_path);
-          return ((char *)NULL);
-        }
+      free(full_path);
+      return ((char *)NULL);
     }
 
+    /* If we only care about whether the file exists or not, return
+       this filename. */
+    if (flags & FS_EXISTS)
+      return (full_path);
+
+    /* Otherwise, maybe we care about whether this file is executable.
+       If it is, and that is what we want, return it. */
+    if ((flags & FS_EXEC_ONLY) && (status & FS_EXECABLE))
+      return (full_path);
+    else
+    {
+      free(full_path);
+      return ((char *)NULL);
+    }
+  }
+
   /* Find out the location of the current working directory. */
-  stat (".", &finfo);
+  stat(".", &finfo);
 
   path_index = 0;
   while (path_list && path_list[path_index])
+  {
+    /* Allow the user to interrupt out of a lengthy path search. */
+    /* CHANGED: commented out: QUIT; */
+
+    char *path = get_next_path_element(path_list, &path_index);
+
+    if (!path)
+      break;
+
+    /* CHANGED: Skip everything in the PATH that doesn't start with a '/' */
+    if (skip_tilde && *path != '/')
     {
-      /* Allow the user to interrupt out of a lengthy path search. */
-      /* CHANGED: commented out: QUIT;*/
-
-      char *path = get_next_path_element (path_list, &path_index);
-
-      if (!path)
-        break;
-
-      /* CHANGED: Skip everything in the PATH that doesn't start with a '/' */
-      if (skip_tilde && *path != '/')
-      {
-        free (path);
-	continue;
-      }
-
-      if (*path == '~')
-        {
-          char *t = tilde_expand (path);
-          free (path);
-          path = t;
-        }
-
-      /* CHANGED: Skip everything in the PATH that doesn't start with a '/' or '~' */
-      if (skip_dot && *path != '/')
-      {
-        free (path);
-	continue;
-      }
-
-      /* Remember the location of "." in the path, in all its forms
-         (as long as they begin with a `.', e.g. `./.') */
-      if (!dot_found_in_search && (*path == '.') &&
-          same_file (".", path, &finfo, (struct stat *)NULL))
-        dot_found_in_search = 1;
-
-      full_path = make_full_pathname (path, name, name_len);
-      free (path);
-
-      status = file_status (full_path);
-
-      if (!(status & FS_EXISTS))
-        goto next_file;
-
-      /* The file exists.  If the caller simply wants the first file,
-         here it is. */
-      if (flags & FS_EXISTS)
-        return (full_path);
-
-       /* If the file is executable, then it satisfies the cases of
-          EXEC_ONLY and EXEC_PREFERRED.  Return this file unconditionally. */
-      if (status & FS_EXECABLE)
-        {
-          if (file_to_lose_on)
-	    free(file_to_lose_on);
-
-          return (full_path);
-        }
-
-      /* The file is not executable, but it does exist.  If we prefer
-         an executable, then remember this one if it is the first one
-         we have found. */
-      if (flags & FS_EXEC_PREFERRED)
-        {
-          if (!file_to_lose_on)
-            file_to_lose_on = savestring (full_path);
-        }
-
-    next_file:
-      free (full_path);
+      free(path);
+      continue;
     }
+
+    if (*path == '~')
+    {
+      char *t = tilde_expand(path);
+
+      free(path);
+      path = t;
+    }
+
+    /* CHANGED: Skip everything in the PATH that doesn't start with a '/' or '~' */
+    if (skip_dot && *path != '/')
+    {
+      free(path);
+      continue;
+    }
+
+    /* Remember the location of "." in the path, in all its forms
+       (as long as they begin with a `.', e.g. `./.') */
+    if (!dot_found_in_search && (*path == '.') &&
+	same_file(".", path, &finfo, (struct stat *)NULL))
+      dot_found_in_search = 1;
+
+    full_path = make_full_pathname(path, name, name_len);
+    free(path);
+
+    status = file_status(full_path);
+
+    if (!(status & FS_EXISTS))
+      goto next_file;
+
+    /* The file exists.  If the caller simply wants the first file,
+       here it is. */
+    if (flags & FS_EXISTS)
+      return (full_path);
+
+    /* If the file is executable, then it satisfies the cases of
+       EXEC_ONLY and EXEC_PREFERRED.  Return this file unconditionally. */
+    if (status & FS_EXECABLE)
+    {
+      if (file_to_lose_on)
+	free(file_to_lose_on);
+
+      return (full_path);
+    }
+
+    /* The file is not executable, but it does exist.  If we prefer
+       an executable, then remember this one if it is the first one
+       we have found. */
+    if (flags & FS_EXEC_PREFERRED)
+    {
+      if (!file_to_lose_on)
+	file_to_lose_on = savestring(full_path);
+    }
+
+  next_file:
+    free(full_path);
+  }
 
   /* We didn't find exactly what the user was looking for.  Return
      the contents of FILE_TO_LOSE_ON which is NULL when the search
@@ -213,41 +213,42 @@ find_user_command_in_path (const char *name, const char *path_list, int flags)
 int main(int argc, char *argv[])
 {
   const char *progname = argv[0];
-  const char *path_list = getenv ("PATH");
+  const char *path_list = getenv("PATH");
   char cwd[256], home[256];
   size_t homelen = 0;
   int option, fail_count = 0;
   int show_dot = 0, show_tilde = 0, tty_only = 0;
   struct option longopts[] = {
-  	{ "version", 0, &option, opt_version },
-	{ "skip-dot", 0, &option, opt_skip_dot },
-	{ "skip-tilde", 0, &option, opt_skip_tilde },
-	{ "show-dot", 0, &option, opt_show_dot },
-	{ "show-tilde", 0, &option, opt_show_tilde },
-	{ "tty-only", 0, &option, opt_tty_only },
-	{ NULL, 0, NULL, 0 } };
+    {"version", 0, &option, opt_version},
+    {"skip-dot", 0, &option, opt_skip_dot},
+    {"skip-tilde", 0, &option, opt_skip_tilde},
+    {"show-dot", 0, &option, opt_show_dot},
+    {"show-tilde", 0, &option, opt_show_tilde},
+    {"tty-only", 0, &option, opt_tty_only},
+    {NULL, 0, NULL, 0}
+  };
 
-  while(!getopt_long(argc, argv, "", longopts, NULL))
+  while (!getopt_long(argc, argv, "", longopts, NULL))
   {
-    switch(option)
+    switch (option)
     {
       case opt_version:
-        print_version();
+	print_version();
 	return 0;
       case opt_skip_dot:
-        skip_dot = !tty_only;
-        break;
+	skip_dot = !tty_only;
+	break;
       case opt_skip_tilde:
-        skip_tilde = !tty_only;
-        break;
+	skip_tilde = !tty_only;
+	break;
       case opt_show_dot:
-        show_dot = !tty_only;
-        break;
+	show_dot = !tty_only;
+	break;
       case opt_show_tilde:
-        show_tilde = (!tty_only && geteuid() != 0);
-        break;
+	show_tilde = (!tty_only && geteuid() != 0);
+	break;
       case opt_tty_only:
-        tty_only = !isatty(1);
+	tty_only = !isatty(1);
 	break;
     }
   }
@@ -257,6 +258,7 @@ int main(int argc, char *argv[])
     if (!getcwd(cwd, sizeof(cwd)))
     {
       const char *pwd = getenv("PWD");
+
       if (!pwd || strlen(pwd) >= sizeof(cwd))
 	strcpy(cwd, ".");
       else
@@ -267,6 +269,7 @@ int main(int argc, char *argv[])
   if (show_tilde)
   {
     const char *h;
+
     if (!(h = getenv("HOME")))
     {
       fprintf(stderr, "%s: --show-tilde: Environment variable HOME not set\n", progname);
@@ -279,7 +282,7 @@ int main(int argc, char *argv[])
       homelen = strlen(home);
       if (home[homelen - 1] != '/' && homelen < sizeof(home) - 1)
       {
-        strcat(home, "/");
+	strcat(home, "/");
 	++homelen;
       }
     }
@@ -296,12 +299,13 @@ int main(int argc, char *argv[])
   for (; *argv; ++argv)
   {
     const char *result = NULL;
+
     if (path_list && *path_list != '\0')
     {
       result = find_user_command_in_path(*argv, path_list, FS_EXEC_ONLY);
       if (result)
       {
-        if (!show_dot && *result == '.')
+	if (!show_dot && *result == '.')
 	{
 	  ++result;
 	  fprintf(stdout, "%s", cwd);
