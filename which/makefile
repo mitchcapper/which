@@ -31,10 +31,11 @@ release: tar index.html cvslog
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
 	date +%j > .release_day
 
-tar: ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in
+tar: $(srcdir)/config.h.in $(ACLOCAL_M4) $(srcdir)/stamp-h.in ChangeLog README index.html Makefile.in configure
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
 	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in /tmp/which-$(VER)
+	cp -pr .deps /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
 	  if [ "$$i" != "." ]; then \
