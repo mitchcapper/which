@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML LANG="en">
-<!-- $Id: index.html.in,v 1.6 1999-04-18 14:02:51 carlo Exp $ -->
+<!-- $Id: index.html.in,v 1.7 1999-04-20 13:50:56 carlo Exp $ -->
 <HEAD>
 	<META name="Author" content="Carlo Wood">
 	<META http-equiv="content-type" content="text/html; charset=iso-8859-1">
@@ -14,10 +14,11 @@
 
 <H2>Downloading</H2>
 
-<LI><A HREF="which-2.2.tar.gz">which-2.2.tar.gz</A>
+<LI><A HREF="which-2.3.tar.gz">which-2.3.tar.gz</A>
 
 <H2>ChangeLog</H2>
 
+<LI><A HREF="cvslog-2.3.html">Version 2.3</A>
 <LI><A HREF="cvslog-2.2.html">Version 2.2</A>
 <LI><A HREF="cvslog-2.1.html">Version 2.1</A>
 

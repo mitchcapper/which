@@ -1,6 +1,6 @@
 Begin3
 Title: which
-Version: 2.2
+Version: 2.3
 Entered-date: 1999-04-09
 Description: Which is a utility that prints out the full path of the
 	     executables that bash(1) would execute when the passed

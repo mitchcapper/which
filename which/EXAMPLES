@@ -15,7 +15,7 @@ Options: --version    Print version and exit successfully.
          --all, -a    Print all matching executables in PATH, not just the first
 
 >which --version
-GNU which v2.2, Copyright (C) 1999 Carlo Wood.
+GNU which v2.3, Copyright (C) 1999 Carlo Wood.
 GNU which comes with ABSOLUTELY NO WARRANTY;
 This program is free software; your freedom to use, change
 and distribute this program is covered by the GPL.
