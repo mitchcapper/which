@@ -87,10 +87,25 @@ cvslog:
 	   DD=`echo "$$D1 $$D2" | awk '{ printf("%d\n", $$2 - $$1) }'`; \
 	   echo "Last release was $$DD days ago."; \
 	   cvs2html -e -r$(PREVTAG):HEAD -o cvslog-$(VER); \
+	   rm cvslog-$(VER)_rpm*; \
 	 )
 
 rpm: tar
 	rpm --rcfile /usr/lib/rpm/rpmrc:rpm/rpmrc --target i386 --sign --clean -ba which-2.spec
+
+which-2.spec: which-2.spec.in
+	sed -e 's/@VERSION@/$(VER)/g' which-2.spec.in | grep -B2000 '@CHANGELOG@' | grep -v '@CHANGELOG@' > which-2.spec
+	echo -n "%changelog" >> which-2.spec
+	cvs log which-2.spec.in | \
+	  grep -A2000 '^-----' | \
+	  egrep -v '^-----|^=====' | \
+	  sed -e 's/^revision .*$$//' | \
+	  awk -F'[ ;]'  '{ if ($$0~/^date: /) { \
+	    printf("* "); \
+	    system("echo -n `date --date \""$$2" "$$3"\" \"+%a %b %d %Y\"`"); \
+	    printf(" Carlo Wood <carlo@gnu.org>\n"); \
+	  } else if ($$0~/^[A-Z]/) { printf("- %s\n", $$0); } else if ($$0~/./) { printf("  %s\n", $$0); } else {print} }' >> which-2.spec
+	grep -A2000 '@CHANGELOG@' which-2.spec.in | grep -v '@CHANGELOG@' >> which-2.spec
 
 .PHONY: ChangeLog
 ChangeLog:
