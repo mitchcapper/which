@@ -25,19 +25,19 @@
 
 static const char *progname;
 
-static void print_usage(void)
+static void print_usage(FILE *out)
 {
-  fprintf(stderr, "Usage: %s [options] [--] programname [...]\n", progname);
-  fprintf(stderr, "Options: --version, -[vV] Print version and exit successfully.\n");
-  fprintf(stderr, "         --help,          Print this help and exit successfully.\n");
-  fprintf(stderr, "         --skip-dot       Skip directories in PATH that start with a dot.\n");
-  fprintf(stderr, "         --skip-tilde     Skip directories in PATH that start with a tilde.\n");
-  fprintf(stderr, "         --show-dot       Don't expand a dot to current directory in output.\n");
-  fprintf(stderr, "         --show-tilde     Output a tilde for HOME directory for non-root.\n");
-  fprintf(stderr, "         --tty-only       Stop processing options on the right if not on tty.\n");
-  fprintf(stderr, "         --all, -a        Print all matches in PATH, not just the first\n");
-  fprintf(stderr, "         --read-alias, -i Read list of aliases from stdin.\n");
-  fprintf(stderr, "         --skip-alias     Ignore option --read-alias; don't read stdin.\n");
+  fprintf(out, "Usage: %s [options] [--] programname [...]\n", progname);
+  fprintf(out, "Options: --version, -[vV] Print version and exit successfully.\n");
+  fprintf(out, "         --help,          Print this help and exit successfully.\n");
+  fprintf(out, "         --skip-dot       Skip directories in PATH that start with a dot.\n");
+  fprintf(out, "         --skip-tilde     Skip directories in PATH that start with a tilde.\n");
+  fprintf(out, "         --show-dot       Don't expand a dot to current directory in output.\n");
+  fprintf(out, "         --show-tilde     Output a tilde for HOME directory for non-root.\n");
+  fprintf(out, "         --tty-only       Stop processing options on the right if not on tty.\n");
+  fprintf(out, "         --all, -a        Print all matches in PATH, not just the first\n");
+  fprintf(out, "         --read-alias, -i Read list of aliases from stdin.\n");
+  fprintf(out, "         --skip-alias     Ignore option --read-alias; don't read stdin.\n");
 }
 
 static void print_version(void)
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
 	switch (long_option)
 	{
 	  case opt_help:
-	    print_usage();
+	    print_usage(stdout);
 	    return 0;
 	  case opt_version:
 	    print_version();
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
 
   if (argc == 0)
   {
-    print_usage();
+    print_usage(stderr);
     return -1;
   }
 
