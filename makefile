@@ -21,7 +21,7 @@ REDHAT:=$(shell grep '^%_topdir' rpm/macros | cut -d \  -f 2)
 
 .PHONY: release tar rpm
 
-setup-dist:
+setup-dist: ChangeLog
 	make README
 	autoheader
 	automake
@@ -120,7 +120,6 @@ EXAMPLES: which
 which.lsm: which.lsm.in
 	sed -e 's/@VERSION@/$(VER)/g' which.lsm.in > which.lsm
 
-.PHONY: ChangeLog
 ChangeLog:
 	@( echo "/usr/local/bin/cvs \`echo \"\$$*\" | sed -e 's%1970%1990%'\`" > cvs; \
 	    chmod 755 cvs; )
