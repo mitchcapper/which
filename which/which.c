@@ -19,9 +19,7 @@
 
 #include "sys.h"
 #include <stdio.h>
-#ifdef HAVE_GETOPT_H
-#include <getopt.h>
-#endif
+#include "getopt.h"
 #if defined(HAVE_READLINE_TILDE_H) && !defined(NEED_TILDE_EXPAND)
 #include <readline/tilde.h>  /* Part of libreadline that comes with binutils */
 #else
