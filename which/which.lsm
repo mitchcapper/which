@@ -11,7 +11,7 @@ Description: Which is a utility that prints out the full path of the
 	     "~/*" or "./*" and/or to print all exectuables that
 	     match any directory in PATH.
 Keywords: which utility directory path executable bash
-Author: carlo@runaway.xs4all.nl (Carlo Wood)
+Author: carlo@gnu.org (Carlo Wood)
 Maintained-by: carlo@runaway.xs4all.nl (Carlo Wood)
 Primary-site: http://www.xs4all.nl/~carlo17/which/
 Home-page: http://www.xs4all.nl/~carlo17/which/
