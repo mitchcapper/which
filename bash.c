@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libiberty.h>
-#include <readline/tilde.h>
 #include "bash.h"
 
 extern int skip_tilde, skip_dot;
@@ -44,14 +43,10 @@ extern int skip_tilde, skip_dot;
  * - used ANSI function arguments,
  * - made all functions static and
  * - changed all occurences of 'char *' into 'const char *' where possible.
+ * - exported functions needed in which.c
  */
 static int group_member (GID_T gid);
-static int file_status (const char *name);
-static int absolute_program (const char *string);
 static char *extract_colon_unit (const char *string, int *p_index);
-static char *get_next_path_element (const char *path_list, int *path_index_pointer);
-static int same_file (const char *path1, const char *path2, const struct stat *stp1, const struct stat *stp2);
-static char *make_full_pathname (const char *path, const char *name, int name_len);
 
 /*===========================================================================
  *
@@ -59,10 +54,6 @@ static char *make_full_pathname (const char *path, const char *name, int name_le
  * a few functions are from other files: test.c, general.c and variables.c.
  *
  */
-
-#if !defined (savestring)
-#  define savestring(x) (char *)strcpy (xmalloc (1 + strlen (x)), (x))
-#endif /* !savestring */
 
 #if defined (HAVE_GETGROUPS)
 /* The number of groups that this user is a member of. */
@@ -141,7 +132,7 @@ group_member (GID_T gid)
    The EXISTS bit is non-zero if the file is found.
    The EXECABLE bit is non-zero the file is executble.
    Zero is returned if the file is not found. */
-static int
+int
 file_status (const char *name)
 {
   struct stat finfo;
@@ -206,7 +197,7 @@ file_status (const char *name)
 /* Return 1 if STRING is an absolute program name; it is absolute if it
    contains any slashes.  This is used to decide whether or not to look
    up through $PATH. */
-static int
+int
 absolute_program (const char *string)
 {
   return ((char *)strchr (string, '/') != (char *)NULL);
@@ -215,7 +206,7 @@ absolute_program (const char *string)
 /* Given a string containing units of information separated by colons,
    return the next one pointed to by (P_INDEX), or NULL if there are no more.
    Advance (P_INDEX) to the character after the colon. */
-static char *
+char *
 extract_colon_unit (const char *string, int *p_index)
 {
   int i, start;
@@ -263,7 +254,7 @@ extract_colon_unit (const char *string, int *p_index)
    paths.  PATH_INDEX_POINTER is the address of an index into PATH_LIST;
    the index is modified by this function.
    Return the next element of PATH_LIST or NULL if there are no more. */
-static char *
+char *
 get_next_path_element (const char *path_list, int *path_index_pointer)
 {
   char *path;
@@ -285,7 +276,7 @@ get_next_path_element (const char *path_list, int *path_index_pointer)
 /* Return 1 if PATH1 and PATH2 are the same file.  This is kind of
    expensive.  If non-NULL STP1 and STP2 point to stat structures
    corresponding to PATH1 and PATH2, respectively. */
-static int
+int
 same_file (
      const char *path1,
      const char *path2,
@@ -311,15 +302,9 @@ same_file (
   return ((stp1->st_dev == stp2->st_dev) && (stp1->st_ino == stp2->st_ino));
 }
 
-/* DOT_FOUND_IN_SEARCH becomes non-zero when find_user_command ()
-   encounters a `.' as the directory pathname while scanning the
-   list of possible pathnames; i.e., if `.' comes before the directory
-   containing the file of interest. */
-static int dot_found_in_search = 0;
-
 /* Turn PATH, a directory, and NAME, a filename, into a full pathname.
    This allocates new memory and returns it. */
-static char *
+char *
 make_full_pathname (const char *path, const char *name, int name_len)
 {
   char *full_path;
@@ -332,149 +317,3 @@ make_full_pathname (const char *path, const char *name, int name_len)
   strcpy (full_path + path_len + 1, name);
   return (full_path);
 }
-
-/* This does the dirty work for find_path_file () and find_user_command ().
-   NAME is the name of the file to search for.
-   PATH_LIST is a colon separated list of directories to search.
-   FLAGS contains bit fields which control the files which are eligible.
-   Some values are:
-      FS_EXEC_ONLY:             The file must be an executable to be found.
-      FS_EXEC_PREFERRED:        If we can't find an executable, then the
-                                the first file matching NAME will do.
-      FS_EXISTS:                The first file found will do.
-*/
-const char *
-find_user_command_in_path (const char *name, const char *path_list, int flags)
-{
-  char *full_path;
-  char *file_to_lose_on;
-  int status, path_index, name_len;
-  struct stat finfo;
-
-  name_len = strlen (name);
-
-  /* The file name which we would try to execute, except that it isn't
-     possible to execute it.  This is the first file that matches the
-     name that we are looking for while we are searching $PATH for a
-     suitable one to execute.  If we cannot find a suitable executable
-     file, then we use this one. */
-  file_to_lose_on = (char *)NULL;
-
-  /* We haven't started looking, so we certainly haven't seen
-     a `.' as the directory path yet. */
-  dot_found_in_search = 0;
-
-  if (absolute_program (name))
-    {
-      full_path = (char *) xmalloc (1 + name_len);
-      strcpy (full_path, name);
-
-      status = file_status (full_path);
-
-      /* If the file doesn't exist, quit now. */
-      if (!(status & FS_EXISTS))
-        {
-          free (full_path);
-          return ((char *)NULL);
-        }
-
-      /* If we only care about whether the file exists or not, return
-         this filename. */
-      if (flags & FS_EXISTS)
-        return (full_path);
-
-      /* Otherwise, maybe we care about whether this file is executable.
-         If it is, and that is what we want, return it. */
-      if ((flags & FS_EXEC_ONLY) && (status & FS_EXECABLE))
-        return (full_path);
-      else
-        {
-          free (full_path);
-          return ((char *)NULL);
-        }
-    }
-
-  /* Find out the location of the current working directory. */
-  stat (".", &finfo);
-
-  path_index = 0;
-  while (path_list && path_list[path_index])
-    {
-      /* Allow the user to interrupt out of a lengthy path search. */
-      /* CHANGED: commented out: QUIT;*/
-
-      char *path = get_next_path_element (path_list, &path_index);
-
-      if (!path)
-        break;
-
-      /* CHANGED: Skip everything in the PATH that doesn't start with a '/' */
-      if (skip_tilde && *path != '/')
-      {
-        free (path);
-	continue;
-      }
-
-      if (*path == '~')
-        {
-          char *t = tilde_expand (path);
-          free (path);
-          path = t;
-        }
-
-      /* CHANGED: Skip everything in the PATH that doesn't start with a '/' or '~' */
-      if (skip_dot && *path != '/')
-      {
-        free (path);
-	continue;
-      }
-
-      /* Remember the location of "." in the path, in all its forms
-         (as long as they begin with a `.', e.g. `./.') */
-      if (!dot_found_in_search && (*path == '.') &&
-          same_file (".", path, &finfo, (struct stat *)NULL))
-        dot_found_in_search = 1;
-
-      full_path = make_full_pathname (path, name, name_len);
-      free (path);
-
-      status = file_status (full_path);
-
-      if (!(status & FS_EXISTS))
-        goto next_file;
-
-      /* The file exists.  If the caller simply wants the first file,
-         here it is. */
-      if (flags & FS_EXISTS)
-        return (full_path);
-
-       /* If the file is executable, then it satisfies the cases of
-          EXEC_ONLY and EXEC_PREFERRED.  Return this file unconditionally. */
-      if (status & FS_EXECABLE)
-        {
-          if (file_to_lose_on)
-	    free(file_to_lose_on);
-
-          return (full_path);
-        }
-
-      /* The file is not executable, but it does exist.  If we prefer
-         an executable, then remember this one if it is the first one
-         we have found. */
-      if (flags & FS_EXEC_PREFERRED)
-        {
-          if (!file_to_lose_on)
-            file_to_lose_on = savestring (full_path);
-        }
-
-    next_file:
-      free (full_path);
-    }
-
-  /* We didn't find exactly what the user was looking for.  Return
-     the contents of FILE_TO_LOSE_ON which is NULL when the search
-     required an executable, or non-NULL if a file was found and the
-     search would accept a non-executable as a last resort. */
-  return (file_to_lose_on);
-}
-
