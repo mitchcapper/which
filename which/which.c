@@ -35,11 +35,12 @@ static void print_usage(const char *progname)
   fprintf(stderr, "         --show-dot   Don't expand a dot to current directory in output.\n");
   fprintf(stderr, "         --show-tilde Output a tilde for HOME directory for non-root.\n");
   fprintf(stderr, "         --tty-only   Stop processing options on the right if not on tty.\n");
+  fprintf(stderr, "         --all, -a    Print all matching executables in PATH, not just the first\n");
 }
 
 static void print_version(void)
 {
-  fprintf(stdout, "GNU which v2.0 -- by Carlo Wood\n");
+  fprintf(stdout, "GNU which v2.1 -- by Carlo Wood\n");
 }
 
 static void print_fail(const char *progname, const char *name, const char *path_list)
@@ -47,23 +48,15 @@ static void print_fail(const char *progname, const char *name, const char *path_
   fprintf(stderr, "%s: no %s in (%s)\n", progname, name, path_list);
 }
 
-enum opts {
-  opt_version,
-  opt_skip_dot,
-  opt_skip_tilde,
-  opt_show_dot,
-  opt_show_tilde,
-  opt_tty_only
-};
-
-static int skip_dot = 0, skip_tilde = 0;
 static int absolute_path_given;
 static char *abs_path;
 
-static char *find_command_in_path(const char *name, const char *path_list)
+static int skip_dot = 0, skip_tilde = 0, show_all = 0;
+
+static char *find_command_in_path(const char *name, const char *path_list, int *path_index)
 {
   char *found = NULL, *full_path;
-  int status, path_index = 0, name_len;
+  int status, name_len;
 
   name_len = strlen(name);
 
@@ -95,33 +88,32 @@ static char *find_command_in_path(const char *name, const char *path_list)
     name = p;
   }
 
-  while (path_list && path_list[path_index])
+  while (path_list && path_list[*path_index])
   {
     char *path;
 
     if (absolute_path_given)
     {
       path = savestring(path_list);
-      path_index = strlen(path);
+      *path_index = strlen(path);
     }
     else
-      path = get_next_path_element(path_list, &path_index);
+      path = get_next_path_element(path_list, path_index);
 
     if (!path)
       break;
 
-    if (skip_tilde && *path != '/')
-    {
-      free(path);
-      continue;
-    }
-
     if (*path == '~')
     {
       char *t = tilde_expand(path);
-
       free(path);
       path = t;
+
+      if (skip_tilde)
+      {
+        free(path);
+	continue;
+      }
     }
 
     if (skip_dot && *path != '/')
@@ -169,6 +161,12 @@ static void get_current_working_directory(void)
   }
 
   cwdlen = strlen(cwd);
+
+  if (cwd[cwdlen - 1] != '/')
+  {
+    cwd[cwdlen++] = '/';
+    cwd[cwdlen] = 0;
+  }
 }
 
 static char *path_clean_up(const char *path)
@@ -184,9 +182,8 @@ static char *path_clean_up(const char *path)
   {
     get_current_working_directory();
     strcpy(result, cwd);
-    strcat(result, "/");
     saw_slash = 1;
-    p2 = &result[cwdlen + 1];
+    p2 = &result[cwdlen];
   }
 
   do
@@ -220,46 +217,64 @@ static char *path_clean_up(const char *path)
   return result;
 }
 
+enum opts {
+  opt_version,
+  opt_skip_dot,
+  opt_skip_tilde,
+  opt_show_dot,
+  opt_show_tilde,
+  opt_tty_only
+};
+
 int main(int argc, char *argv[])
 {
   const char *progname = argv[0];
   const char *path_list = getenv("PATH");
   char home[256];
   size_t homelen = 0;
-  int option, fail_count = 0;
+  int short_option, long_option, fail_count = 0, path_index;
   int show_dot = 0, show_tilde = 0, tty_only = 0;
   struct option longopts[] = {
-    {"version", 0, &option, opt_version},
-    {"skip-dot", 0, &option, opt_skip_dot},
-    {"skip-tilde", 0, &option, opt_skip_tilde},
-    {"show-dot", 0, &option, opt_show_dot},
-    {"show-tilde", 0, &option, opt_show_tilde},
-    {"tty-only", 0, &option, opt_tty_only},
+    {"version", 0, &long_option, opt_version},
+    {"skip-dot", 0, &long_option, opt_skip_dot},
+    {"skip-tilde", 0, &long_option, opt_skip_tilde},
+    {"show-dot", 0, &long_option, opt_show_dot},
+    {"show-tilde", 0, &long_option, opt_show_tilde},
+    {"tty-only", 0, &long_option, opt_tty_only},
+    {"all", 0, NULL, 'a'},
     {NULL, 0, NULL, 0}
   };
 
-  while (!getopt_long(argc, argv, "", longopts, NULL))
+  while ((short_option = getopt_long(argc, argv, "a", longopts, NULL)) != -1)
   {
-    switch (option)
+    switch (short_option)
     {
-      case opt_version:
-	print_version();
-	return 0;
-      case opt_skip_dot:
-	skip_dot = !tty_only;
+      case 0:
+	switch (long_option)
+	{
+	  case opt_version:
+	    print_version();
+	    return 0;
+	  case opt_skip_dot:
+	    skip_dot = !tty_only;
+	    break;
+	  case opt_skip_tilde:
+	    skip_tilde = !tty_only;
+	    break;
+	  case opt_show_dot:
+	    show_dot = !tty_only;
+	    break;
+	  case opt_show_tilde:
+	    show_tilde = (!tty_only && geteuid() != 0);
+	    break;
+	  case opt_tty_only:
+	    tty_only = !isatty(1);
+	    break;
+	}
 	break;
-      case opt_skip_tilde:
-	skip_tilde = !tty_only;
-	break;
-      case opt_show_dot:
-	show_dot = !tty_only;
-	break;
-      case opt_show_tilde:
-	show_tilde = (!tty_only && geteuid() != 0);
-	break;
-      case opt_tty_only:
-	tty_only = !isatty(1);
-	break;
+      case 'a':
+        show_all = 1;
+        break;
     }
   }
 
@@ -299,28 +314,35 @@ int main(int argc, char *argv[])
   for (; *argv; ++argv)
   {
     char *result = NULL;
+    int found_something = 0;
 
     if (path_list && *path_list != '\0')
     {
-      result = find_command_in_path(*argv, path_list);
-      if (result)
+      path_index = 0;
+      do
       {
-	const char *full_path = path_clean_up(result);
-	if (show_dot && !strncmp(full_path, cwd, cwdlen))
+	result = find_command_in_path(*argv, path_list, &path_index);
+	if (result)
 	{
-	  full_path += cwdlen;
-	  fprintf(stdout, "./");
+	  const char *full_path = path_clean_up(result);
+	  if (show_dot && !strncmp(full_path, cwd, cwdlen))
+	  {
+	    full_path += cwdlen;
+	    fprintf(stdout, "./");
+	  }
+	  else if (show_tilde && !strncmp(full_path, home, homelen))
+	  {
+	    full_path += homelen;
+	    fprintf(stdout, "~/");
+	  }
+	  fprintf(stdout, "%s\n", full_path);
+	  free(result);
+	  found_something = 1;
 	}
-	else if (show_tilde && !strncmp(full_path, home, homelen))
-	{
-	  full_path += homelen;
-	  fprintf(stdout, "~/");
-	}
-	fprintf(stdout, "%s\n", full_path);
-	free(result);
       }
+      while(show_all && result);
     }
-    if (!result)
+    if (!found_something)
     {
       print_fail(progname, absolute_path_given ? strrchr(*argv, '/') + 1 : *argv, absolute_path_given ? abs_path : path_list);
       ++fail_count;
