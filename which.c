@@ -21,9 +21,9 @@
 #include <stdio.h>
 #include "getopt.h"
 #if defined(HAVE_READLINE_TILDE_H) && !defined(NEED_TILDE_EXPAND)
-#include <readline/tilde.h>  /* Part of libreadline that comes with binutils */
+#include <readline/tilde.h>	/* Part of libreadline that comes with binutils */
 #else
-extern char *tilde_expand (const char *);
+extern char *tilde_expand(const char *);
 #endif
 #include "bash.h"
 
@@ -118,7 +118,7 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
 
       if (skip_tilde)
       {
-        free(path);
+	free(path);
 	continue;
       }
     }
@@ -283,8 +283,8 @@ int main(int argc, char *argv[])
 	}
 	break;
       case 'a':
-        show_all = 1;
-        break;
+	show_all = 1;
+	break;
       case 'v':
       case 'V':
 	print_version();
@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
       path_index = 0;
       do
       {
-        next = show_all;
+	next = show_all;
 	result = find_command_in_path(*argv, path_list, &path_index);
 	if (result)
 	{
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 	else
 	  break;
       }
-      while(next);
+      while (next);
     }
     if (!found_something)
     {
@@ -411,7 +411,7 @@ void *xrealloc(void *ptr, size_t size)
 #endif /* NEED_XMALLOC */
 
 #ifdef NEED_TILDE_EXPAND
-char *tilde_expand (const char *path)
+char *tilde_expand(const char *path)
 {
   char *ptr;
   if (path[0] == '~')
