@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML LANG="en">
-<!-- $Id: index.html.in,v 1.13 1999-09-24 15:36:54 carlo Exp $ -->
+<!-- $Id: index.html.in,v 1.14 2001-08-17 02:25:50 carlo Exp $ -->
 <HEAD>
 	<META name="Author" content="Carlo Wood">
 	<META http-equiv="content-type" content="text/html; charset=iso-8859-1">
@@ -14,7 +14,7 @@
 
 <H2>Downloading</H2>
 
-<P>The i386.rpm is for RedHat 6.0</P>
+<P>The i386.rpm is linked against glibc-2.2</P>
 
 <P>
 <LI><A HREF="which-!VERSION!.tar.gz">which-!VERSION!.tar.gz</A>
