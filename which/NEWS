@@ -1,3 +1,7 @@
+Version 2.8 --> 2.9
+
+* Fixed compile problem in Solaris 5.6 using cc
+
 Version 2.7 --> 2.8
 
 * aclocal.m4 was missing from the tar, resulting in
