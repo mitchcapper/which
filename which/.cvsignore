@@ -18,3 +18,4 @@ config.status
 .release_day
 .prevtag
 ChangeLog
+which-2.spec
