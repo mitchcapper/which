@@ -191,16 +191,3 @@ README: which.1 README.in configure.in
 	sed -e 's%!VERSION!%'`grep 's%@VERSION' config.status | cut -d% -f3`'%g' README.in > README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 61 | tail -n 58 >> README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> README
-
-$(srcdir)/version.texi: @MAINTAINER_MODE_TRUE@stamp-vti
-	@:
-
-$(srcdir)/stamp-vti: which.texinfo $(top_srcdir)/configure.in
-	@echo "@set UPDATED `$(SHELL) $(srcdir)/mdate-sh $(srcdir)/which.texinfo`" > vti.tmp
-	@echo "@set EDITION $(VERSION)" >> vti.tmp
-	@echo "@set VERSION $(VERSION)" >> vti.tmp
-	@cmp -s vti.tmp $(srcdir)/version.texi \
-	  || (echo "Updating $(srcdir)/version.texi"; \
-	      cp vti.tmp $(srcdir)/version.texi)
-	-@rm -f vti.tmp
-	@cp $(srcdir)/version.texi $@

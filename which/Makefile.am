@@ -1,9 +1,12 @@
+AUTOMAKE_OPTIONS = no-texinfo.tex
+
 bin_PROGRAMS = which
 which_SOURCES = getopt.c getopt1.c bash.c which.c \
 		bash.h sys.h getopt.h posixstat.h
 LDADD = $(top_builddir)/tilde/libtilde.a
+info_TEXINFOS = which.texinfo
 man_MANS = which.1
-BUILT_SOURCES = README EXAMPLES
+BUILT_SOURCES = README EXAMPLES which.1
 EXTRA_DIST = $(man_MANS) $(BUILT_SOURCES) README.alias
 SUBDIRS = tilde
 
@@ -12,7 +15,8 @@ DISTCLEANFILES=config.cache config.log config.h
 # --------------- Maintainer's Section
 
 MAINTAINERCLEANFILES=aclocal.m4 Makefile.in config.h.in stamp-h.in configure \
-        ChangeLog EXAMPLES which-2.spec index.html cvslog-*.html README
+        ChangeLog EXAMPLES which-2.spec index.html cvslog-*.html README \
+	texinfo2man which.1
 
 ## Bug in automake: Can't use `if MAINTAINER_MODE'
 @MAINTAINER_MODE_TRUE@include $(srcdir)/maintMakefile
