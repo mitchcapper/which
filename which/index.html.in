@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML LANG="en">
+<!-- $Id: index.html.in,v 1.1 1999-04-06 13:51:27 carlo Exp $ -->
+<HEAD>
+	<META name="Author" content="Carlo Wood">
+	<META http-equiv="content-type" content="text/html; charset=iso-8859-1">
+	<TITLE>Which</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#c8ccc8">
+<CENTER>
+<IMG SRC="../images/which.jpg"><BR CLEAR=ALL>
+</CENTER>
+
+
+<H2>Manual page</H2>
+
+<PRE>
+MANPAGE
+</PRE>
+
+<H2>Downloading</H2>
+
+<LI><A HREF="which-2.0.tar.gz">which-2.0.tar.gz</A>
+
+<H2>Examples</H2>
+
+<PRE>
+EXAMPLES
+</PRE>
+
+</BODY>
+</HTML>
