@@ -50,7 +50,7 @@ which: no --version in (.:~/bin:/bin:/usr/bin)
 >(cd /bin; PATH="/bin:.:/usr/bin" which --show-dot cat)
 /bin/cat
 
-(cd /bin; PATH=".:/bin:/usr/bin" which --skip-dot --show-dot cat)
+>(cd /bin; PATH=".:/bin:/usr/bin" which --skip-dot --show-dot cat)
 /bin/cat
 
 >which ls
