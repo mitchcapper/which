@@ -29,11 +29,12 @@ release: tar index.html cvslog
 	install -m 644 -o carlo which-$(VER).tar.gz /home/carlo/www/which
 	install -m 644 -o carlo index.html /home/carlo/www/which
 	install -m 644 -o carlo cvslog-$(VER)*.html /home/carlo/www/which
+	date +%j > .release_day
 
-tar: ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in
+tar: ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in
 	rm -rf /tmp/which-$(VER)
 	mkdir /tmp/which-$(VER)
-	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in /tmp/which-$(VER)
+	cp -p ChangeLog README index.html Makefile.in configure aclocal.m4 stamp-h.in config.h.in /tmp/which-$(VER)
 	( for i in `find . -type d ! -name CVS ! -name .deps -print`; do \
 	  files=`grep '^/' $$i/CVS/Entries | sed -e 's%^/%%' -e 's%/.*$$%%'`; \
 	  if [ "$$i" != "." ]; then \
@@ -65,7 +66,13 @@ index.html: EXAMPLES which.1 index.html.in
 	grep -A2000 '^EXAMPLES' index.html.in | grep -v '^EXAMPLES' >> index.html
 
 cvslog:
-	@( cvs2html -e -D7 -o cvslog-$(VER) )
+	@( \
+	   D1=`cat .release_day`; \
+	   D2=`date +%j`; \
+	   DD=`echo "$$D1 $$D2" | awk '{ printf("%d\n", $$2 - $$1) }'`; \
+	   echo "Last release was $$DD days ago."; \
+	   cvs2html -e -D$$DD -o cvslog-$(VER); \
+	 )
 
 .PHONY: ChangeLog
 ChangeLog:
