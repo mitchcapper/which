@@ -64,7 +64,7 @@ index.html: EXAMPLES which.1 index.html.in
 	grep -A2000 '^EXAMPLES' index.html.in | grep -v '^EXAMPLES' >> index.html
 
 cvslog:
-	@( cvs2html -e -D2 -o cvslog-$(VER) )
+	@( cvs2html -e -D7 -o cvslog-$(VER) )
 
 .PHONY: ChangeLog
 ChangeLog:
