@@ -43,6 +43,7 @@ tar: README index.html
 	)
 	rm /tmp/which-$(VER)/.cvsignore /tmp/which-$(VER)/makefile
 	rm /tmp/which-$(VER)/README.in /tmp/which-$(VER)/index.html.in
+	rm /tmp/which-$(VER)/.indent.pro
 	rm -rf /tmp/which-$(VER)/rpm
 	tar czf which-$(VER).tar.gz -C /tmp which-$(VER)
 	rm -rf /tmp/which-$(VER)
