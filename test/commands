@@ -55,6 +55,21 @@ which ./xxx
 chmod 711 xxx
 which ./xxx
 
+chmod 655 cat
+which cat
+
+/usr/local/bin/su0 /bin/chown root cat
+which cat
+
+/usr/local/bin/su0 /bin/chmod 545 cat
+which cat
+
+/usr/local/bin/su0 /bin/chgrp bin cat
+which cat
+
+/usr/local/bin/su0 /bin/chmod 541 cat
+which cat
+
 /usr/local/bin/su0 /bin/chown root xxx
 which ./xxx
 
