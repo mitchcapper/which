@@ -38,6 +38,8 @@ static void print_usage(FILE *out)
   fprintf(out, "         --all, -a        Print all matches in PATH, not just the first\n");
   fprintf(out, "         --read-alias, -i Read list of aliases from stdin.\n");
   fprintf(out, "         --skip-alias     Ignore option --read-alias; don't read stdin.\n");
+  fprintf(out, "         --read-functions Read shell functions from stdin.\n");
+  fprintf(out, "         --skip-functions Ignore option --read-functions; don't read stdin.\n");
 }
 
 static void print_version(void)
@@ -62,6 +64,7 @@ static char *abs_path;
 
 static int skip_dot = 0, skip_tilde = 0, skip_alias = 0, read_alias = 0;
 static int show_dot = 0, show_tilde = 0, show_all = 0, tty_only = 0;
+static int skip_functions = 0, read_functions = 0;
 
 static char *find_command_in_path(const char *name, const char *path_list, int *path_index)
 {
@@ -229,6 +232,44 @@ static char *path_clean_up(const char *path)
   return result;
 }
 
+struct function_st {
+  char *name;
+  size_t len;
+  char **lines;
+  int line_count;
+};
+
+static struct function_st *functions;
+static int func_count;
+static int max_func_count;
+
+static char **aliases;
+static int alias_count;
+static int max_alias_count;
+
+int func_search(int indent, const char *cmd, struct function_st *func_list)
+{
+  int i;
+  for (i = 0; i < func_count; ++i)
+  {
+    if (!strcmp(functions[i].name, cmd))
+    {
+      int j;
+      if (indent)
+        fputc('\t', stdout);
+      fprintf(stdout, "%s ()\n", cmd);
+      for (j = 0; j < functions[i].line_count; ++j)
+      {
+	if (indent)
+	  fputc('\t', stdout);
+        fputs(functions[i].lines[j], stdout);
+      }
+      return 1;
+    }
+  }
+  return 0;
+}
+
 int path_search(int indent, const char *cmd, const char *path_list)
 {
   char *result = NULL;
@@ -317,6 +358,8 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
 
     for(;;)
     {
+      int found = 0;
+
       while(*p == ' ' || *p == '\t')
 	++p;
       len = 0;
@@ -328,7 +371,10 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
       cmd[len] = 0;
       if (*argv && !strcmp(cmd, *argv))
         *argv = NULL;
-      path_search(2, cmd, path_list);
+      if (read_functions && !strchr(cmd, '/'))
+        found = func_search(1, cmd, functions);
+      if (show_all || !found)
+	path_search(1, cmd, path_list);
       free(cmd);
 
       while(*p && (*p != '|' || p[1] == '|') && (*p != '&' || p[1] == '&'))
@@ -344,11 +390,44 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
   }
 }
 
+int process_function(const char *str, int argc, char *argv[], const char *path_list)
+{
+  const char *p = str;
+  int len = 0;
+
+  // Expected pattern for `str' is "declare -[a-z]* FUNCTION_NAME (.*"
+  if (strncmp("declare -", p, 9))
+    return 0;
+
+  p += 9;
+  while(*p && *p++ != ' ');
+
+  while(*p && *p != ' ')
+    ++p, ++len;
+
+  for (; argc > 0; --argc, ++argv)
+  {
+    if (!*argv || len != strlen(*argv) || strncmp(*argv, &p[-len], len))
+      continue;
+
+    fputs(&p[-len], stdout);
+
+    if (!show_all)
+      *argv = NULL;
+
+    return 1;
+  }
+
+  return 0;
+}
+
 enum opts {
   opt_version,
   opt_skip_dot,
   opt_skip_tilde,
   opt_skip_alias,
+  opt_read_functions,
+  opt_skip_functions,
   opt_show_dot,
   opt_show_tilde,
   opt_tty_only,
@@ -371,6 +450,8 @@ int main(int argc, char *argv[])
     {"all", 0, NULL, 'a'},
     {"read-alias", 0, NULL, 'i'},
     {"skip-alias", 0, &long_option, opt_skip_alias},
+    {"read-functions", 0, &long_option, opt_read_functions},
+    {"skip-functions", 0, &long_option, opt_skip_functions},
     {NULL, 0, NULL, 0}
   };
 
@@ -405,6 +486,9 @@ int main(int argc, char *argv[])
 	    break;
 	  case opt_tty_only:
 	    tty_only = !isatty(1);
+	    break;
+	  case opt_read_functions:
+	    read_functions = 1;
 	    break;
 	}
 	break;
@@ -454,6 +538,9 @@ int main(int argc, char *argv[])
   if (skip_alias)
     read_alias = 0;
 
+  if (skip_functions)
+    read_functions = 0;
+
   argv += optind;
   argc -= optind;
 
@@ -463,23 +550,97 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  if (read_alias)
+  if (read_alias || read_functions)
   {
     char buf[1024];
+    int processing_aliases = read_alias;
 
     if (isatty(0))
-      fprintf(stderr, "%s: --read-alias, -i: Warning: stdin is a tty.\n", progname);
+    {
+      fprintf(stderr, "%s: %s: Warning: stdin is a tty.\n", progname,
+          (read_functions ? read_alias ? "--read-functions, --read-alias, -i" : "--read-functions" : "--read-alias, -i"));
+    }
 
     while (fgets(buf, sizeof(buf), stdin))
-      process_alias(buf, argc, argv, path_list);
+    {
+      if (strncmp(buf, "declare", 7))
+      {
+	if (processing_aliases)
+	{
+	  if (alias_count == max_alias_count)
+	  {
+	    max_alias_count += 32;
+	    aliases = (char **)xrealloc(aliases, max_alias_count * sizeof(char *));
+	  }
+	  aliases[alias_count++] = strcpy((char *)xmalloc(strlen(buf) + 1), buf);
+	}
+      }
+      else if (read_functions)
+      {
+        struct function_st *function;
+        int max_line_count;
+
+	const char *p = buf;
+	int len = 0;
+
+        processing_aliases = 0;
+
+	// Expected pattern for `str' is "declare -[a-z]* FUNCTION_NAME (.*"
+	if (strncmp("declare -", p, 9))
+	  continue;
+
+	p += 9;
+	while(*p && *p++ != ' ');
+
+	while(*p && *p != ' ')
+	  ++p, ++len;
+
+	if (func_count == max_func_count)
+	{
+	  max_func_count += 16;
+	  functions = (struct function_st *)xrealloc(functions, max_func_count * sizeof(struct function_st));
+	}
+	function = &functions[func_count++];
+	function->name = (char *)xmalloc(len + 1);
+	strncpy(function->name, &p[-len], len);
+	function->name[len] = 0;
+	function->len = len;
+	max_line_count = 32;
+	function->lines = (char **)xmalloc(max_line_count * sizeof(char *));
+	function->line_count = 0;
+	while (fgets(buf, sizeof(buf), stdin))
+	{
+	  size_t blen = strlen(buf);
+	  function->lines[function->line_count++] = strcpy((char *)xmalloc(blen + 1), buf);
+	  if (!strcmp(buf, "}\n"))
+	    break;
+          if (function->line_count == max_line_count)
+	  {
+	    max_line_count += 32;
+	    function->lines = (char **)xrealloc(function->lines, max_line_count * sizeof(char *));
+	  }
+	}
+      }
+    }
+    if (read_alias)
+    {
+      int i;
+      for (i = 0; i < alias_count; ++i)
+	process_alias(aliases[i], argc, argv, path_list);
+    }
   }
 
   for (; argc > 0; --argc, ++argv)
   {
+    int found_something = 0;
+
     if (!*argv)
       continue;
 
-    if (!path_search(0, *argv, path_list))
+    if (read_functions && !strchr(*argv, '/'))
+      found_something = func_search(0, *argv, functions);
+
+    if ((show_all || !found_something) && !path_search(0, *argv, path_list) && !found_something)
     {
       print_fail(absolute_path_given ? strrchr(*argv, '/') + 1 : *argv, absolute_path_given ? abs_path : path_list);
       ++fail_count;
