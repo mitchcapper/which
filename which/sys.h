@@ -35,3 +35,11 @@ char *strchr(), *strrchr();
 extern void *xmalloc(size_t);
 extern void *xrealloc(void *ptr, size_t size);
 #endif
+
+#ifndef NULL
+# ifdef __STDC__
+#   define NULL ((void *)0)
+# else
+#   define NULL (0x0)
+# endif
+#endif
