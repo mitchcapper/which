@@ -95,6 +95,7 @@ rpm: tar
 	rpm --rcfile /usr/lib/rpm/rpmrc:rpm/rpmrc --target i386 --sign --clean -ba which-2.spec
 
 which-2.spec: which-2.spec.in
+	cvs commit which-2.spec.in
 	sed -e 's/@VERSION@/$(VER)/g' which-2.spec.in | grep -B2000 '@CHANGELOG@' | grep -v '@CHANGELOG@' > which-2.spec
 	echo -n "%changelog" >> which-2.spec
 	cvs log which-2.spec.in | \
