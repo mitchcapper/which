@@ -113,6 +113,7 @@ tar:
 	mv @PACKAGE@-@VERSION@.tar.gz $(REDHAT)/SOURCES
 
 rpm: tar $(SPECFILE)
+	cp rpm/profile.d/which-2.* $(REDHAT)/SOURCES
 	rpm --rcfile /usr/lib/rpm/rpmrc:rpm/rpmrc --target $(TARGET) --sign --clean -ba $(SPECFILE)
 
 cvslog:
