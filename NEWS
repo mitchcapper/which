@@ -1,3 +1,12 @@
+Version 2.12 --> 2.13
+
+* Support for shell functions.  This version also fixes the
+  problem that the alias for `which' wasn't inherited by subshells.
+  You need to change the alias by a shell function! (The rpm does
+  this automatically).
+* Fixes for the .spec file (merged changes from RedHat 7.1)
+  Now installs the which.info file as well.
+
 Version 2.11 --> 2.12
 
 * Minor man page fix (no reason to upgrade at all thus)

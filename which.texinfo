@@ -143,8 +143,22 @@ alias for which itself. For example@*
 @cindex @option{--skip-alias}
 @item --skip-alias
 Ignore option @option{--read-alias}, if any. This is useful to
-explicity search for normal binaries, while using the
-@option{--read-alias} option in an alias for which.
+explicity search for normal binaries, while using
+the @option{--read-alias} option in an alias or function for which.
+
+@cindex @option{--read-functions}
+@item --read-functions
+Read shell function definitions from stdin, reporting matching
+ones on stdout. This is useful in combination with using a shell
+function for which itself.  For example:@*
+@code{which() @{ declare -f | which --read-functions $@@ @}
+export -f which}
+
+@cindex @option{--skip-functions}
+@item --skip-functions
+Ignore option @option{--read-functions}, if any. This is useful to
+explicity search for normal binaries, while using
+the @option{--read-functions} option in an alias or function for which.
 
 @cindex @option{--skip-dot}
 @item --skip-dot
@@ -201,12 +215,26 @@ no @file{programname} was given.
 @cindex aliases, handling of
 
 @c !BEGIN EXAMPLE
-A useful way to use this utility is by adding an alias for
-@command{which} like the following:
+The recommended way to use this utility is by adding an alias (C shell)
+or shell function (Bourne shell) for @command{which} like the following:
+
+[ba]sh:
 
 @example
 @group
-alias which='which --tty-only --show-tilde --show-dot'
+which ()
+{
+  (alias; declare -f) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot $@@
+}
+export -f which
+@end group
+@end example
+
+[t]csh:
+
+@example
+@group
+alias which 'alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
 @end group
 @end example
 
@@ -223,30 +251,6 @@ used from a script:
 /home/carlo/bin/q2
 @end group
 @end example
-
-Aliases are also supported, through the use of an alias
-for which itself. An example alias for which that is
-using this feature is as follows:
-
-@example
-@group
-alias which='alias | which --tty-only --read-alias --show-tilde --show-dot'
-@end group
-@end example
-
-@noindent
-This will print the output of alias for each alias that
-matches one of the given arguments. For example, using
-this alias on itself in a tcsh:
-
-@example
-@group
-$ alias which alias \| /usr/bin/which -i !\*
-$ which which
-which   (alias | /usr/bin/which -i !*)
-	/usr/bin/which
-@end group
-@end example
 @c !END EXAMPLE
 
 @node    Bugs, See Also, Example, Top
@@ -258,9 +262,7 @@ The @env{HOME} directory is determined by looking for the @env{HOME}
 environment variable, which aborts when this variable
 doesn't exist.  @command{Which} will consider two equivalent directories
 to be different when one of them contains a path
-with a symbolic link.  Shell functions are not supported yet.  When
-the given @file{programname} is a shell function (or shell builtin), then
-@command{which} will fail.
+with a symbolic link.
 @c !END BUGS
 
 @node    See Also, Index, Bugs, Top
