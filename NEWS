@@ -1,3 +1,7 @@
+Version 2.5 --> 2.6
+
+* Doesn't depend on libreadline.a anymore.
+
 Version 2.4 --> 2.5
 
 * Fixed which-2.spec
