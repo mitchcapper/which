@@ -148,7 +148,7 @@ ChangeLog:
 	PATH=.:$$PATH rcs2log > ChangeLog
 	@rm cvs
 
-release: cvslog tar html @PACKAGE@.lsm rpm
+release: cvslog tar html @PACKAGE@.lsm rpm NEWS
 	install -m 644 $(REDHAT)/SRPMS/@PACKAGE@-@VERSION@-$(REL).src.rpm $(WWWDIR)
 	install -m 644 $(REDHAT)/RPMS/$(TARGET)/@PACKAGE@-@VERSION@-$(REL).$(TARGET).rpm $(WWWDIR)
 	install -m 644 $(REDHAT)/SOURCES/@PACKAGE@-@VERSION@.tar.gz $(WWWDIR)
@@ -156,6 +156,7 @@ release: cvslog tar html @PACKAGE@.lsm rpm
 	install -m 644 @PACKAGE@.lsm $(WWWDIR)
 	install -m 644 `ls cvslog-@VERSION@*.html | grep -v cvslog-@VERSION@_rpm` $(WWWDIR)
 	#install -m 644 @PACKAGE@*.html $(WWWDIR)
+	install -m 644 NEWS $(WWWDIR)
 	rm cvslog-@VERSION@*.html
 	cvs tag $(TAG)
 	echo "$(TAG)" > .prevtag
