@@ -4,7 +4,7 @@ Version: 2.5
 Release: 1
 Copyright: distributable
 Group: Applications/System
-Source: ftp://metalab.unc.edu/pub/Linux/utils/shell/which-2.5.tar.gz
+Source: ftp://ftp.gnu.org/gnu/which/which-2.5.tar.gz
 Prefix: /usr
 Buildroot: /var/tmp/which-root
 
@@ -16,8 +16,8 @@ the specified program is in your PATH.
 %setup
 
 %build
-configure --prefix=/usr
-make CFLAGS="-O2 -DHAVE_CONFIG_H"
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr
+make
 
 %install
 make prefix=$RPM_BUILD_ROOT/usr install
@@ -33,7 +33,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Tue May 14 1999 Carlo Wood <carlo@runaway.xs4all.nl>
 - which version 2.5
-- Added quotes around CFLAGS in %build
+- Moved assignment of CFLAGS to the configure line, using RPM_OPT_FLAGS now.
 
 * Tue May 13 1999 Carlo Wood <carlo@runaway.xs4all.nl>
 - which version 2.4
