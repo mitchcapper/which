@@ -106,7 +106,7 @@ test-values:
 ##	$(CC) -g -o texinfo2man texinfo2man.c
 
 @PACKAGE@.lsm: @PACKAGE@.lsm.in configure.in
-	sed -e 's%!VERSION!%@VERSION@%g' @PACKAGE@.lsm.in > @PACKAGE@.lsm
+	sed -e 's%!VERSION!%'`grep 's%@VERSION' config.status | cut -d% -f3`'%g' @PACKAGE@.lsm.in > @PACKAGE@.lsm
 
 tar:
 	$(MAKE) dist
@@ -187,7 +187,7 @@ EXAMPLES: which
 	( cd test; whichtest generate; )
 
 README: which.1 README.in configure.in
-	sed -e 's%!VERSION!%@VERSION@%g' README.in > README
+	sed -e 's%!VERSION!%'`grep 's%@VERSION' config.status | cut -d% -f3`'%g' README.in > README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 61 | tail -n 58 >> README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 128 | tail -n 56 | grep -B2000 '^ ' >> README
 
