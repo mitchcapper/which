@@ -89,6 +89,7 @@ cvslog:
 	   echo "Last release was $$DD days ago."; \
 	   cvs2html -e -r$(PREVTAG):HEAD -o cvslog-$(VER); \
 	   rm cvslog-$(VER)_rpm*; \
+	   rm cvslog-$(VER)_test*; \
 	 )
 
 rpm: tar
