@@ -3,7 +3,7 @@ which_SOURCES = getopt.c getopt1.c bash.c which.c \
 		bash.h sys.h getopt.h posixstat.h
 LDADD = $(top_builddir)/tilde/libtilde.a
 man_MANS = which.1
-BUILT_SOURCES = README EXAMPLES aclocal.m4
+BUILT_SOURCES = README EXAMPLES
 EXTRA_DIST = $(man_MANS) $(BUILT_SOURCES)
 SUBDIRS = tilde
 
