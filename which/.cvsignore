@@ -8,10 +8,12 @@ stamp-h
 Makefile
 Makefile.in
 config.h
+config.h.in
 aclocal.m4
 configure
 config.log
 config.cache
 config.status
 .deps
+.release_day
 ChangeLog
