@@ -36,9 +36,6 @@ rm -rf $RPM_BUILD_ROOT
 - Moved assignment of CFLAGS to the configure line, using RPM_OPT_FLAGS now.
 - Corrected Source: line to point to ftp.gnu.org.
 
-* Tue Apr 06 1999 Carlo Wood <carlo@gnu.org>
-- Initial version.
-
 * Sat Apr 17 1999 Carlo Wood <carlo@gnu.org>
 - Started to use automake and autoconf
 
