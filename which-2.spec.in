@@ -29,7 +29,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc EXAMPLES README README.alias
+%doc EXAMPLES README
 %attr(-,root,bin) /usr/bin/which
 %config /etc/profile.d/which-2.*
 /usr/man/man1/which.1
