@@ -33,4 +33,6 @@ autom4te-*.cache
 depcomp
 compile
 stamp-h1
-
+install-sh
+missing
+mkinstalldirs
