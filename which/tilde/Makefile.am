@@ -6,9 +6,7 @@ MAINTAINERCLEANFILES=Makefile.in aclocal.m4 configure
 
 maintainer-clean-local:
 	echo "all:" > Makefile
-	echo -e "\tautoheader" >> Makefile
 	echo -e "\taclocal" >> Makefile
-	echo -e "\tautomake --foreign" >> Makefile
-	echo -e "\tautoconf" >> Makefile
 	echo -e "\tautoheader" >> Makefile
-	echo -e "\tconfigure --enable-maintainer-mode" >> Makefile
+	echo -e "\tautoconf" >> Makefile
+	echo -e "\tautomake" >> Makefile
