@@ -28,3 +28,9 @@ which.info
 texinfo2man
 which.html
 which.1
+which-*.tar.gz
+autom4te-*.cache
+depcomp
+compile
+stamp-h1
+

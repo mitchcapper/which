@@ -2,6 +2,7 @@ dnl AC_CHECK_STATICLIB(LIBRARY, FUNCTION [, ACTION-IF-FOUND
 dnl		 [, ACTION-IF-NOT-FOUND  [, OTHER-LIBRARIES]]])
 dnl Like AC_CHECK_LIB but looking for static libraries.
 dnl LIBRARY must be of the form libxxx.a.
+dnl The current language must be C (AC_LANG_C).
 AC_DEFUN(AC_CHECK_STATICLIB,
 [AC_MSG_CHECKING([for $2 in $1])
 dnl Use a cache variable name containing both the library and function name,
@@ -19,17 +20,13 @@ for path in $ld_so_paths; do
   [ac_save_LIBS="$LIBS"
   LIBS="$path/$1 $5 $LIBS"
   AC_TRY_LINK(dnl
-  ifelse(AC_LANG, [FORTRAN77], ,
   ifelse([$2], [main], , dnl Avoid conflicting decl of main.
   [/* Override any gcc2 internal prototype to avoid an error.  */
-  ]ifelse(AC_LANG, CPLUSPLUS, [#ifdef __cplusplus
-  extern "C"
-  #endif
-  ])dnl
+  ]dnl
   [/* We use char because int might match the return type of a gcc2
       builtin and then its argument prototype would still apply.  */
   char $2();
-  ])),
+  ]),
 	      [$2()],
 	      eval "ac_cv_lib_static_$ac_lib_var=$path/$1",
 	      eval "ac_cv_lib_static_$ac_lib_var=no")
@@ -57,3 +54,18 @@ ifelse([$4], , , [$4
 fi
 ])
 
+AC_DEFUN(BASH_CHECK_GETPW_FUNCS,
+[AC_MSG_CHECKING(whether programs are able to redeclare getpw functions)
+AC_CACHE_VAL(bash_cv_can_redecl_getpw,
+[AC_TRY_COMPILE([#include <sys/types.h>
+#include <pwd.h>
+extern struct passwd *getpwent();
+extern struct passwd *getpwuid();
+extern struct passwd *getpwnam();],
+[struct passwd *z; z = getpwent(); z = getpwuid(0); z = getpwnam("root");],
+  bash_cv_can_redecl_getpw=yes,bash_cv_can_redecl_getpw=no)])
+AC_MSG_RESULT($bash_cv_can_redecl_getpw)
+if test $bash_cv_can_redecl_getpw = no; then
+AC_DEFINE(HAVE_GETPW_DECLS)
+fi
+])

@@ -1,8 +1,7 @@
 Install
 =======
 
-You will need an ANSI C compiler (like gcc or egcs) to compile
-this package.
+You will need an ANSI C compiler (like gcc) to compile this package.
 
 Just type `make', followed by `make install'.
 

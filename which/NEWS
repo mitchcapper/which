@@ -1,3 +1,7 @@
+Version 2.13 --> 2.14
+
+* Upgraded build system to work with automake 1.5 and autoconf 2.53.
+
 Version 2.12 --> 2.13
 
 * Support for shell functions.  This version also fixes the
