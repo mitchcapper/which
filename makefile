@@ -99,12 +99,14 @@ which-2.spec: which-2.spec.in
 	echo -n "%changelog" >> which-2.spec
 	cvs log which-2.spec.in | \
 	  grep -A2000 '^-----' | \
-	  egrep -v '^-----|^=====' | \
-	  sed -e 's/^revision .*$$//' | \
-	  awk -F'[ ;]'  '{ if ($$0~/^date: /) { \
-	    printf("* "); \
-	    system("echo -n `date --date \""$$2" "$$3"\" \"+%a %b %d %Y\"`"); \
-	    printf(" Carlo Wood <carlo@gnu.org>\n"); \
+	  egrep -v '^-----|^=====|^revision' | \
+	  awk -F'[ ;]' --assign lastdate="" '{ if ($$0~/^date: /) { \
+	    if (lastdate != $$2) { \
+	      lastdate=$$2; \
+	      printf("\n* "); \
+	      system("echo -n `date --date \""$$2" "$$3"\" \"+%a %b %d %Y\"`"); \
+	      printf(" Carlo Wood <carlo@gnu.org>\n"); \
+	    } \
 	  } else if ($$0~/^[A-Z]/) { printf("- %s\n", $$0); } else if ($$0~/./) { printf("  %s\n", $$0); } else {print} }' >> which-2.spec
 	grep -A2000 '@CHANGELOG@' which-2.spec.in | grep -v '@CHANGELOG@' >> which-2.spec
 
