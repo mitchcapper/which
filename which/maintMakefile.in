@@ -178,7 +178,7 @@ html: index.html.in configure.in
 	  done \
 	)
 	grep -A2000 '^CHANGELOGLIST' index.html.in | grep -v '^CHANGELOGLIST' | grep -B2000 '^MANPAGE' | grep -v '^MANPAGE' >> index.html
-	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 60 | tail -n 57 >> index.html
+	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 61 | tail -n 58 >> index.html
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 123 | tail -n 51 | grep -B2000 '^ ' >> index.html
 	grep -A2000 '^MANPAGE' index.html.in | grep -v '^MANPAGE' | grep -B2000 '^EXAMPLES' | grep -v '^EXAMPLES' >> index.html
 	cat EXAMPLES >> index.html
