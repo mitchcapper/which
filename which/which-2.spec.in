@@ -5,6 +5,7 @@ Release: 1
 Copyright: distributable
 Group: Applications/System
 Source: ftp://ftp.gnu.org/gnu/which/which-!VERSION!.tar.gz
+Source: which-2.{sh,csh}
 Prefix: /usr
 Buildroot: /var/tmp/which-root
 
