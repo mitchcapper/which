@@ -16,4 +16,5 @@ config.cache
 config.status
 .deps
 .release_day
+.prevtag
 ChangeLog
