@@ -4,7 +4,7 @@ Options: --version    Print version and exit successfully.
          --skip-dot   Skip directories in PATH that start with a dot.
          --skip-tilde Skip directories in PATH that start with a tilde.
          --show-dot   Don't expand a dot to current directory in output.
-         --show-tilde Output a tilde for HOME directory.
+         --show-tilde Output a tilde for HOME directory for non-root.
          --tty-only   Stop processing options on the right if not on tty.
 ~>which --version
 GNU which v2.0 -- by Carlo Wood
