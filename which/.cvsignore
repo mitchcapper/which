@@ -21,3 +21,10 @@ which-2.spec
 EXAMPLES
 which.lsm
 maintMakefile
+mdate-sh
+version.texi
+stamp-vti
+which.info
+texinfo2man
+which.html
+

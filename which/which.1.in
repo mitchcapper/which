@@ -1,0 +1,44 @@
+.TH WHICH 1
+.rn RS Rs
+.de RS
+.na
+.nf
+.Rs
+..
+.rn RE Re
+.de RE
+.Re
+.fi
+.ad
+..
+.de Sx
+.PP
+.ne \\$1
+.RS
+..
+.de Ex
+.RE
+.PP
+..
+.na
+.SH NAME
+which \- @NAME@
+.SH SYNOPSIS
+.B which
+[options] [\-\-] programname [...]
+.SH DESCRIPTION
+@DESCRIPTION@
+
+This man page is generated from the file \fIwhich.texinfo\fR.
+.SH OPTIONS
+@OPTIONS@
+.SH RETURN VALUE
+@RETURNVALUE@
+.SH EXAMPLE
+@EXAMPLE@
+.SH BUGS
+@BUGS@
+.SH AUTHOR
+@AUTHORS@
+.SH "SEE ALSO"
+@SEEALSO@
