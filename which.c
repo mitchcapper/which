@@ -57,41 +57,55 @@ enum opts {
 };
 
 static int skip_dot = 0, skip_tilde = 0;
+static int absolute_path_given;
+static char *abs_path;
 
-const char *find_command_in_path(const char *name, const char *path_list)
+static char *find_command_in_path(const char *name, const char *path_list)
 {
-  char *full_path;
-  int status, path_index, name_len;
+  char *found = NULL, *full_path;
+  int status, path_index = 0, name_len;
 
   name_len = strlen(name);
 
-  if (absolute_program(name))
+  if (!absolute_program(name))
+    absolute_path_given = 0;
+  else
   {
-    full_path = (char *)xmalloc(1 + name_len);
-    strcpy(full_path, name);
+    char *p;
+    absolute_path_given = 1;
 
-    status = file_status(full_path);
+    if (abs_path)
+      free(abs_path);
 
-    /* If the file doesn't exist, quit now. */
-    if (!(status & FS_EXISTS))
+    if (*name != '.' && *name != '/' && *name != '~')
     {
-      free(full_path);
-      return NULL;
+      abs_path = (char *)xmalloc(3 + name_len);
+      strcpy(abs_path, "./");
+      strcat(abs_path, name);
     }
-
-    if ((status & FS_EXECABLE))
-      return (full_path);
     else
     {
-      free(full_path);
-      return NULL;
+      abs_path = (char *)xmalloc(1 + name_len);
+      strcpy(abs_path, name);
     }
+
+    path_list = abs_path;
+    p = strrchr(abs_path, '/');
+    *p++ = 0;
+    name = p;
   }
 
-  path_index = 0;
   while (path_list && path_list[path_index])
   {
-    char *path = get_next_path_element(path_list, &path_index);
+    char *path;
+
+    if (absolute_path_given)
+    {
+      path = savestring(path_list);
+      path_index = strlen(path);
+    }
+    else
+      path = get_next_path_element(path_list, &path_index);
 
     if (!path)
       break;
@@ -121,24 +135,96 @@ const char *find_command_in_path(const char *name, const char *path_list)
 
     status = file_status(full_path);
 
-    if (!(status & FS_EXISTS))
-      goto next_file;
+    if ((status & FS_EXISTS) && (status & FS_EXECABLE))
+    {
+      found = full_path;
+      break;
+    }
 
-    if (status & FS_EXECABLE)
-      return (full_path);
-
-  next_file:
     free(full_path);
   }
 
-  return NULL;
+  return (found);
+}
+
+static char cwd[256];
+static size_t cwdlen;
+
+static void get_current_working_directory(void)
+{
+  if (cwdlen)
+    return;
+
+  if (!getcwd(cwd, sizeof(cwd)))
+  {
+    const char *pwd = getenv("PWD");
+    if (pwd && strlen(pwd) < sizeof(cwd))
+      strcpy(cwd, pwd);
+  }
+
+  if (*cwd != '/')
+  {
+    fprintf(stderr, "Can't get current working directory\n");
+    exit(-1);
+  }
+
+  cwdlen = strlen(cwd);
+}
+
+static char *path_clean_up(const char *path)
+{
+  static char result[256];
+
+  const char *p1 = path;
+  char *p2 = result;
+
+  int saw_slash = 0, saw_slash_dot = 0, saw_slash_dot_dot = 0;
+
+  if (*p1 != '/')
+  {
+    get_current_working_directory();
+    strcpy(result, cwd);
+    strcat(result, "/");
+    saw_slash = 1;
+    p2 = &result[cwdlen + 1];
+  }
+
+  do
+  {
+    if (!saw_slash || *p1 != '/')
+      *p2++ = *p1;
+    if (saw_slash_dot && (*p1 == '/'))
+      p2 -= 2;
+    if (saw_slash_dot_dot && (*p1 == '/'))
+    {
+      int cnt = 0;
+      do
+      {
+	if (--p2 < result)
+	{
+	  strcpy(result, path);
+	  return result;
+	}
+	if (*p2 == '/')
+	  ++cnt;
+      }
+      while (cnt != 3);
+      ++p2;
+    }
+    saw_slash_dot_dot = saw_slash_dot && (*p1 == '.');
+    saw_slash_dot = saw_slash && (*p1 == '.');
+    saw_slash = (*p1 == '/');
+  }
+  while (*p1++);
+
+  return result;
 }
 
 int main(int argc, char *argv[])
 {
   const char *progname = argv[0];
   const char *path_list = getenv("PATH");
-  char cwd[256], home[256];
+  char home[256];
   size_t homelen = 0;
   int option, fail_count = 0;
   int show_dot = 0, show_tilde = 0, tty_only = 0;
@@ -177,18 +263,8 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (!show_dot)
-  {
-    if (!getcwd(cwd, sizeof(cwd)))
-    {
-      const char *pwd = getenv("PWD");
-
-      if (!pwd || strlen(pwd) >= sizeof(cwd))
-	strcpy(cwd, ".");
-      else
-	strcpy(cwd, pwd);
-    }
-  }
+  if (show_dot)
+    get_current_working_directory();
 
   if (show_tilde)
   {
@@ -222,29 +298,31 @@ int main(int argc, char *argv[])
 
   for (; *argv; ++argv)
   {
-    const char *result = NULL;
+    char *result = NULL;
 
     if (path_list && *path_list != '\0')
     {
       result = find_command_in_path(*argv, path_list);
       if (result)
       {
-	if (!show_dot && *result == '.')
+	const char *full_path = path_clean_up(result);
+	if (show_dot && !strncmp(full_path, cwd, cwdlen))
 	{
-	  ++result;
-	  fprintf(stdout, "%s", cwd);
+	  full_path += cwdlen;
+	  fprintf(stdout, "./");
 	}
-	else if (show_tilde && *result == '/' && !strncmp(result, home, homelen))
+	else if (show_tilde && !strncmp(full_path, home, homelen))
 	{
-	  result += homelen;
+	  full_path += homelen;
 	  fprintf(stdout, "~/");
 	}
-	fprintf(stdout, "%s\n", result);
+	fprintf(stdout, "%s\n", full_path);
+	free(result);
       }
     }
     if (!result)
     {
-      print_fail(progname, *argv, path_list);
+      print_fail(progname, absolute_path_given ? strrchr(*argv, '/') + 1 : *argv, absolute_path_given ? abs_path : path_list);
       ++fail_count;
     }
   }
