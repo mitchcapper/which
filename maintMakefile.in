@@ -84,18 +84,20 @@ REL=1
 AUTHOR=Carlo Wood <carlo@gnu.org>
 TAG:=${shell echo "V@VERSION@" | sed -e 's/\./_/g'}
 PREVTAG:=${shell test -f .prevtag && cat .prevtag}
+CVSREADACCESS:=${shell if test -f $(srcdir)/CVS/Entries; then echo "yes"; else echo "no"; fi}
 
 test-values:
-	@echo "WWWDIR   = \"$(WWWDIR)\""
-	@echo "REDHAT   = \"$(REDHAT)\""
-	@echo "SPECFILE = \"$(SPECFILE)\""
-	@echo "TARGET   = \"$(TARGET)\""
-	@echo "REL      = \"$(REL)\""
-	@echo "AUTHOR   = \"$(AUTHOR)\""
-	@echo "TAG      = \"$(TAG)\""
-	@echo "PREVTAG  = \"$(PREVTAG)\""
-	@echo "PACKAGE  = \"@PACKAGE@\""
-	@echo "VERSION  = \"@VERSION@\""
+	@echo "WWWDIR        = \"$(WWWDIR)\""
+	@echo "REDHAT        = \"$(REDHAT)\""
+	@echo "SPECFILE      = \"$(SPECFILE)\""
+	@echo "TARGET        = \"$(TARGET)\""
+	@echo "REL           = \"$(REL)\""
+	@echo "AUTHOR        = \"$(AUTHOR)\""
+	@echo "TAG           = \"$(TAG)\""
+	@echo "PREVTAG       = \"$(PREVTAG)\""
+	@echo "PACKAGE       = \"@PACKAGE@\""
+	@echo "VERSION       = \"@VERSION@\""
+	@echo "CVSREADACCESS = \"$(CVSREADACCESS)\""
 
 ## Make sure the ChangeLog is up to date in maintainer mode
 .PHONY: release tar rpm cvslog html ChangeLog
@@ -111,7 +113,7 @@ texinfo2man: ../indent/texinfo2man.c
 
 rpm: dist $(SPECFILE) $(LSMFILE)
 	mv @PACKAGE@-@VERSION@.tar.gz $(RPMDIR)/SOURCES
-	cd rpm; rpm --rcfile=/usr/lib/rpm/rpmrc:rpmrc --sign --clean -ba ../$(SPECFILE)
+	cd rpm; rpmbuild --rcfile=/usr/lib/rpm/rpmrc:rpmrc --sign --clean -ba ../$(SPECFILE)
 
 reconfig: $(top_builddir)/config.status
 	$(top_builddir)/config.status --recheck
@@ -119,9 +121,9 @@ reconfig: $(top_builddir)/config.status
 
 cvslog:
 	@( \
-	   D1=`cat .release_day`; \
-	   D2=`date +%j`; \
-	   DD=`echo "$$D1 $$D2" | awk '{ printf("%d\n", $$2 - $$1) }'`; \
+	   D1=`cat .release_second`; \
+	   D2=`date +%s`; \
+	   DD=`echo "$$D1 $$D2" | awk '{ printf("%d\n", ($$2 - $$1)/86400) }'`; \
 	   echo "Last release was $$DD days ago."; \
 	   cvs2html -e -r$(PREVTAG):HEAD -o cvslog-@VERSION@; \
 	 )
@@ -154,7 +156,7 @@ ChangeLog:
 	  touch ChangeLog; \
 	fi
 
-release: cvslog tar html @PACKAGE@.lsm rpm NEWS
+release: cvslog html @PACKAGE@.lsm rpm NEWS
 	install -m 644 $(REDHAT)/SRPMS/@PACKAGE@-@VERSION@-$(REL).src.rpm $(WWWDIR)
 	install -m 644 $(REDHAT)/RPMS/$(TARGET)/@PACKAGE@-@VERSION@-$(REL).$(TARGET).rpm $(WWWDIR)
 	install -m 644 $(REDHAT)/SOURCES/@PACKAGE@-@VERSION@.tar.gz $(WWWDIR)
@@ -166,7 +168,7 @@ release: cvslog tar html @PACKAGE@.lsm rpm NEWS
 	rm cvslog-@VERSION@*.html
 	cvs tag $(TAG)
 	echo "$(TAG)" > .prevtag
-	date +%j > .release_day
+	date +%s > .release_second
 
 ##-----------------------------------------------------------------------------
 ## `which' specific generation:
