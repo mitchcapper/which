@@ -1,3 +1,20 @@
+Version 2.14 --> 2.15
+
+* Upgraded build system to work with automake 1.7.2 and autoconf 2.57.
+* Fixed search routine to skip executables that are not executable.
+  This is NOT done by all versions of bash (which is a bug).
+  The stock bash-2.0.5b thinks it is allowed to execute a file
+  when it has the eXec bit set for our group or other, but that
+  is not the case: when we own the file, the eXec bit of the *owner*
+  must be set and the group/other bits are irrelevant.  And when
+  we don't own the file, but the file is in our group, then only
+  the group bit matters and not the other eXec bit.  And finally,
+  when we do not own the file and the file is not in our group
+  then not only the 'other' eXec bit needs to be set, but the
+  file must be readable as well.  This has been reported to the
+  maintainer of bash.  For the rest, the search routine has been
+  copied/upgraded to that of bash version 2.0.5b.
+
 Version 2.13 --> 2.14
 
 * Upgraded build system to work with automake 1.5 and autoconf 2.53.
