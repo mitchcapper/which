@@ -1,0 +1,33 @@
+Summary: Displays where a particular program in your path is located.
+Name: which
+Version: @VERSION@
+Release: 1
+Copyright: distributable
+Group: Applications/System
+Source: ftp://ftp.gnu.org/gnu/which/which-@VERSION@.tar.gz
+Prefix: /usr
+Buildroot: /var/tmp/which-root
+
+%description
+The which command shows the full pathname of a specified program, if
+the specified program is in your PATH.
+
+%prep
+%setup
+
+%build
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=/usr
+make
+
+%install
+make prefix=$RPM_BUILD_ROOT/usr install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%doc EXAMPLES README
+/usr/bin/which
+/usr/man/man1/which.1
+
+%changelog
