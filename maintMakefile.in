@@ -153,7 +153,7 @@ release: cvslog tar html @PACKAGE@.lsm rpm
 	install -m 644 $(REDHAT)/SOURCES/@PACKAGE@-@VERSION@.tar.gz $(WWWDIR)
 	install -m 644 index.html $(WWWDIR)
 	install -m 644 @PACKAGE@.lsm $(WWWDIR)
-	install -m 644 cvslog-@VERSION@*.html $(WWWDIR)
+	install -m 644 `ls cvslog-@VERSION@*.html | grep -v cvslog-@VERSION@_rpm` $(WWWDIR)
 	#install -m 644 @PACKAGE@*.html $(WWWDIR)
 	rm cvslog-@VERSION@*.html
 	cvs tag $(TAG)
