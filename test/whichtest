@@ -17,7 +17,7 @@ perform_test () {
 	  printf(">su\n");
 	  is_root=1;
 	}
-	sub("^\/usr\/local\/bin\/su0 \/bin\/", "");
+	sub("^/usr/local/bin/su0 /bin/", "");
 	printf(">%s\n", $$0);
       }
       else if ($$0~/^alias which/)
