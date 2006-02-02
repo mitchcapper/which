@@ -11,7 +11,7 @@
 # GNU awk
 # GNU date
 # GNU groff
-# rpm-4.x (RedHat-7.x)
+# rpm-4.x
 # texinfo2man.c (I'll make this available via my home page)
 # texi2html
 # cvs2html
@@ -103,7 +103,7 @@ test-values:
 .PHONY: release tar rpm cvslog html ChangeLog
 
 @PACKAGE@.1: @PACKAGE@.1.in @PACKAGE@.texinfo texinfo2man configure.in
-	texinfo2man @PACKAGE@.1.in @PACKAGE@.texinfo > @PACKAGE@.1
+	./texinfo2man @PACKAGE@.1.in @PACKAGE@.texinfo > @PACKAGE@.1
 
 texinfo2man: ../indent/texinfo2man.c
 	$(CC) -g -o texinfo2man ../indent/texinfo2man.c
@@ -193,8 +193,8 @@ html: index.html.in configure.in
 	grep -A2000 '^EXAMPLES' index.html.in | grep -v '^EXAMPLES' >> index.html
 
 EXAMPLES: which
-	( cd test; whichtest check; ) || exit -1;
-	( cd test; whichtest generate; )
+	( cd test; ./whichtest check; ) || exit -1;
+	( cd test; ./whichtest generate; )
 
 README: which.1 README.in configure.in
 	sed -e 's%!VERSION!%'`grep 's,@VERSION' config.status | cut -d, -f3`'%g' README.in > README
