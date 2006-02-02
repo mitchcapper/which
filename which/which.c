@@ -247,7 +247,7 @@ static char **aliases;
 static int alias_count;
 static int max_alias_count;
 
-int func_search(int indent, const char *cmd, struct function_st *func_list)
+int func_search(int indent, const char *cmd, struct function_st *func_list, int function_start_type)
 {
   int i;
   for (i = 0; i < func_count; ++i)
@@ -257,7 +257,10 @@ int func_search(int indent, const char *cmd, struct function_st *func_list)
       int j;
       if (indent)
         fputc('\t', stdout);
-      fprintf(stdout, "%s ()\n", cmd);
+      if (function_start_type == 1)
+	fprintf(stdout, "%s () {\n", cmd);
+      else
+	fprintf(stdout, "%s ()\n", cmd);
       for (j = 0; j < functions[i].line_count; ++j)
       {
 	if (indent)
@@ -320,7 +323,7 @@ int path_search(int indent, const char *cmd, const char *path_list)
   return found_something;
 }
 
-void process_alias(const char *str, int argc, char *argv[], const char *path_list)
+void process_alias(const char *str, int argc, char *argv[], const char *path_list, int function_start_type)
 {
   const char *p = str;
   int len = 0;
@@ -372,7 +375,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
       if (*argv && !strcmp(cmd, *argv))
         *argv = NULL;
       if (read_functions && !strchr(cmd, '/'))
-        found = func_search(1, cmd, functions);
+        found = func_search(1, cmd, functions, function_start_type);
       if (show_all || !found)
 	path_search(1, cmd, path_list);
       free(cmd);
@@ -531,6 +534,7 @@ int main(int argc, char *argv[])
     return -1;
   }
 
+  int function_start_type = 0;
   if (read_alias || read_functions)
   {
     char buf[1024];
@@ -545,7 +549,7 @@ int main(int argc, char *argv[])
     while (fgets(buf, sizeof(buf), stdin))
     {
       int looks_like_function_start = 0;
-      int function_start_version_205b;
+      int function_start_has_declare;
       if (read_functions)
       {
 	// bash version 2.0.5a and older output a pattern for `str' like
@@ -565,7 +569,19 @@ int main(int argc, char *argv[])
 	if (*p == ')' && p[-1] == '(' && p[-2] == ' ')
 	{
 	  looks_like_function_start = 1;
-	  function_start_version_205b = (strncmp("declare -", buf, 9) != 0);
+	  function_start_has_declare = (strncmp("declare -", buf, 9) == 0);
+	}
+	// Add some zsh support here.
+	// zsh does output a pattern for `str' like
+	// FUNCTION () {
+	//   body
+	// }
+	if (p > buf + 4 && *p == '{' && p[-1] == ' ' &&
+	    p[-2] == ')' && p[-3] == '(' && p[-4] == ' ')
+	{
+	  looks_like_function_start = 1;
+	  function_start_type = 1;
+	  function_start_has_declare = 0;
 	}
       }
       if (processing_aliases && !looks_like_function_start)
@@ -591,7 +607,7 @@ int main(int argc, char *argv[])
         processing_aliases = 0;
 
 	// Eat "declare -fx " at start of bash version 2.0.5a and older, if present.
-	if (!function_start_version_205b)
+	if (function_start_has_declare)
 	{
 	  p += 9;
 	  while(*p && *p++ != ' ');
@@ -631,7 +647,7 @@ int main(int argc, char *argv[])
     {
       int i;
       for (i = 0; i < alias_count; ++i)
-	process_alias(aliases[i], argc, argv, path_list);
+	process_alias(aliases[i], argc, argv, path_list, function_start_type);
     }
   }
 
@@ -643,7 +659,7 @@ int main(int argc, char *argv[])
       continue;
 
     if (read_functions && !strchr(*argv, '/'))
-      found_something = func_search(0, *argv, functions);
+      found_something = func_search(0, *argv, functions, function_start_type);
 
     if ((show_all || !found_something) && !path_search(0, *argv, path_list) && !found_something)
     {
