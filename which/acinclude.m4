@@ -3,7 +3,7 @@ dnl		 [, ACTION-IF-NOT-FOUND  [, OTHER-LIBRARIES]]])
 dnl Like AC_CHECK_LIB but looking for static libraries.
 dnl LIBRARY must be of the form libxxx.a.
 dnl The current language must be C (AC_LANG_C).
-AC_DEFUN(AC_CHECK_STATICLIB,
+AC_DEFUN([AC_CHECK_STATICLIB],
 [AC_MSG_CHECKING([for $2 in $1])
 dnl Use a cache variable name containing both the library and function name,
 dnl because the test really is for library $1 defining function $2, not
@@ -54,7 +54,7 @@ ifelse([$4], , , [$4
 fi
 ])
 
-AC_DEFUN(BASH_CHECK_GETPW_FUNCS,
+AC_DEFUN([BASH_CHECK_GETPW_FUNCS],
 [AC_MSG_CHECKING(whether programs are able to redeclare getpw functions)
 AC_CACHE_VAL(bash_cv_can_redecl_getpw,
 [AC_TRY_COMPILE([#include <sys/types.h>

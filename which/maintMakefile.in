@@ -102,13 +102,13 @@ test-values:
 ## Make sure the ChangeLog is up to date in maintainer mode
 .PHONY: release tar rpm cvslog html ChangeLog
 
-@PACKAGE@.1: @PACKAGE@.1.in @PACKAGE@.texinfo texinfo2man configure.in
+@PACKAGE@.1: @PACKAGE@.1.in @PACKAGE@.texinfo texinfo2man configure.ac
 	./texinfo2man @PACKAGE@.1.in @PACKAGE@.texinfo > @PACKAGE@.1
 
 texinfo2man: ../indent/texinfo2man.c
 	$(CC) -g -o texinfo2man ../indent/texinfo2man.c
 
-@PACKAGE@.lsm: @PACKAGE@.lsm.in configure.in
+@PACKAGE@.lsm: @PACKAGE@.lsm.in configure.ac
 	sed -e 's%!VERSION!%'`grep 's,@VERSION' config.status | cut -d, -f3`'%g' @PACKAGE@.lsm.in > @PACKAGE@.lsm
 
 rpm: dist $(SPECFILE) $(LSMFILE)
@@ -128,7 +128,7 @@ cvslog:
 	   cvs2html -e -r$(PREVTAG):HEAD -o cvslog-@VERSION@; \
 	 )
 
-$(SPECFILE): $(SPECFILE).in configure.in
+$(SPECFILE): $(SPECFILE).in configure.ac
 	cvs commit $(SPECFILE).in
 	sed -e 's/!VERSION!/@VERSION@/g' $(SPECFILE).in | grep -B2000 '!CHANGELOG!' | grep -v '!CHANGELOG!' > $(SPECFILE)
 	echo -n "%changelog" >> $(SPECFILE)
@@ -173,7 +173,7 @@ release: cvslog html @PACKAGE@.lsm rpm NEWS
 ##-----------------------------------------------------------------------------
 ## `which' specific generation:
 
-html: index.html.in configure.in
+html: index.html.in configure.ac
 	grep -B2000 '^CHANGELOGLIST' index.html.in \
 	    | sed -e 's%!VERSION!%@VERSION@%g' \
 	    | grep -v '^CHANGELOGLIST' > index.html
@@ -196,7 +196,7 @@ EXAMPLES: which
 	( cd test; ./whichtest check; ) || exit -1;
 	( cd test; ./whichtest generate; )
 
-README: which.1 README.in configure.in
+README: which.1 README.in configure.ac
 	sed -e 's%!VERSION!%'`grep 's,@VERSION' config.status | cut -d, -f3`'%g' README.in > README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 61 | tail -n 58 >> README
 	groff -man -Tascii which.1 | sed -e 's/.//g' | head -n 123 | tail -n 51 | grep -B2000 '^ ' >> README
