@@ -60,11 +60,6 @@
 #	replacing "!VERSION!" by @VERSION@ and "!CHANGELOG!" by an
 #	rpm %changelog list generated from the CVS repository log.
 #
-# - tar
-#	Generates the tar.gz distribution file.
-#	This target calls all of the below targets (provided you added
-#	README, @PACKAGE@.1 and ChangeLog to BUILT_SOURCES).
-#
 # - README
 #	Generate README file by replacing "!VERSION!" in README.in by
 #	@VERSION@.
@@ -156,19 +151,19 @@ ChangeLog:
 	  touch ChangeLog; \
 	fi
 
-release: cvslog html @PACKAGE@.lsm rpm NEWS
-	install -m 644 $(REDHAT)/SRPMS/@PACKAGE@-@VERSION@-$(REL).src.rpm $(WWWDIR)
-	install -m 644 $(REDHAT)/RPMS/$(TARGET)/@PACKAGE@-@VERSION@-$(REL).$(TARGET).rpm $(WWWDIR)
-	install -m 644 $(REDHAT)/SOURCES/@PACKAGE@-@VERSION@.tar.gz $(WWWDIR)
+release: cvslog html @PACKAGE@.lsm NEWS
+	#install -m 644 $(REDHAT)/SRPMS/@PACKAGE@-@VERSION@-$(REL).src.rpm $(WWWDIR)
+	#install -m 644 $(REDHAT)/RPMS/$(TARGET)/@PACKAGE@-@VERSION@-$(REL).$(TARGET).rpm $(WWWDIR)
+	#install -m 644 $(REDHAT)/SOURCES/@PACKAGE@-@VERSION@.tar.gz $(WWWDIR)
 	install -m 644 index.html $(WWWDIR)
 	install -m 644 @PACKAGE@.lsm $(WWWDIR)
 	install -m 644 `ls cvslog-@VERSION@*.html | grep -v cvslog-@VERSION@_rpm` $(WWWDIR)
 	#install -m 644 @PACKAGE@*.html $(WWWDIR)
 	install -m 644 NEWS $(WWWDIR)
 	rm cvslog-@VERSION@*.html
-	cvs tag $(TAG)
-	echo "$(TAG)" > .prevtag
-	date +%s > .release_second
+	#cvs tag $(TAG)
+	#echo "$(TAG)" > .prevtag
+	#date +%s > .release_second
 
 ##-----------------------------------------------------------------------------
 ## `which' specific generation:

@@ -3,13 +3,18 @@
 perform_test () {
   (
     cd /home/carlo/c/which
+    umask 022
     export PATH=".:~/bin:/bin:/usr/bin"
     export HOME=`(cd ~; pwd)`
     unset which
     rm -f alias.list
-    awk --assign is_root=0 --assign use_alias=0 '{
-      if ($$0 == "") print
-      else if ($$0~/^\/usr\/local\/bin\/su0 \/bin\//)
+    awk --assign is_root=0 --assign use_alias=0 --assign pathtowhich="$PWD/which" '{
+      sub("whichtest", pathtowhich);
+      if ($$0 == "")
+        print;
+      else if ($$0~/^(export|umask|#|alias \/)/)
+        printf(">%s\n", $$0);
+      else if ($$0~/^\/usr\/bin\/sudo \/bin\//)
       {
 	system($$0" 2>&1");
 	if (is_root == 0)
@@ -17,7 +22,7 @@ perform_test () {
 	  printf(">su\n");
 	  is_root=1;
 	}
-	sub("^/usr/local/bin/su0 /bin/", "");
+	sub("^/usr/bin/sudo /bin/", "");
 	printf(">%s\n", $$0);
       }
       else if ($$0~/^alias which/)
@@ -47,7 +52,7 @@ perform_test () {
 	system($$0" 2>&1");
       }
     }' test/commands > test/.testout;
-    /usr/local/bin/su0 /bin/rm -f cat xxx alias.list;
+    /usr/bin/sudo /bin/rm -f cat xxx alias.list;
   )
 }
 
