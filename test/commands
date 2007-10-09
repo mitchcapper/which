@@ -2,91 +2,93 @@
 umask 022
 export PATH=".:~/bin:/bin:/usr/bin"
 export HOME=`(cd ~; pwd)`
+alias whichtest="$HOME/c/which/which"
+
 touch cat; chmod 755 cat; pwd
 alias
 
-which
+whichtest
 
-which --version
+whichtest --version
 
-which -- --version
+whichtest -- --version
 
-which cat
+whichtest cat
 
-which --show-tilde cat
+whichtest --show-tilde cat
 
-which --show-dot cat
+whichtest --show-dot cat
 
-which --show-tilde --show-dot cat
+whichtest --show-tilde --show-dot cat
 
-which --skip-dot cat
+whichtest --skip-dot cat
 
-(cd /bin; which cat)
+(cd /bin; whichtest cat)
 
-(cd /bin; which --show-dot cat)
+(cd /bin; whichtest --show-dot cat)
 
-(cd /bin; PATH=".:/bin:/usr/bin" which --show-dot cat)
+(cd /bin; PATH=".:/bin:/usr/bin" whichtest --show-dot cat)
 
-(cd /bin; PATH="/bin:.:/usr/bin" which --show-dot cat)
+(cd /bin; PATH="/bin:.:/usr/bin" whichtest --show-dot cat)
 
-(cd /bin; PATH=".:/bin:/usr/bin" which --skip-dot --show-dot cat)
+(cd /bin; PATH=".:/bin:/usr/bin" whichtest --skip-dot --show-dot cat)
 
-which ls
+whichtest ls
 
-which xxx
+whichtest xxx
 
-which ./ls
+whichtest ./ls
 
-(cd /; which bin/ls)
+(cd /; whichtest bin/ls)
 
-(cd /; which --show-dot bin/ls)
+(cd /; whichtest --show-dot bin/ls)
 
-(cd /; which --show-dot /bin/ls)
+(cd /; whichtest --show-dot /bin/ls)
 
-(cd /; which --show-dot bin/xxx)
+(cd /; whichtest --show-dot bin/xxx)
 
-(cd /; which --show-dot /bin/xxx)
+(cd /; whichtest --show-dot /bin/xxx)
 
-which --all cat
+whichtest --all cat
 
 touch xxx
-which ./xxx
+whichtest ./xxx
 
 chmod 711 xxx
-which ./xxx
+whichtest ./xxx
 
 chmod 655 cat
-which cat
+whichtest cat
 
-/usr/local/bin/su0 /bin/chown root cat
-which cat
+/usr/bin/sudo /bin/chown root cat
+whichtest cat
 
-/usr/local/bin/su0 /bin/chmod 545 cat
-which cat
+/usr/bin/sudo /bin/chmod 545 cat
+whichtest cat
 
-/usr/local/bin/su0 /bin/chgrp bin cat
-which cat
+/usr/bin/sudo /bin/chgrp bin cat
+whichtest cat
 
-/usr/local/bin/su0 /bin/chmod 541 cat
-which cat
-/usr/local/bin/su0 /bin/rm -f cat
+/usr/bin/sudo /bin/chmod 541 cat
+whichtest cat
+/usr/bin/sudo /bin/rm -f cat
 
-/usr/local/bin/su0 /bin/chown root xxx
-which ./xxx
+/usr/bin/sudo /bin/chown root xxx
+whichtest ./xxx
 
-/usr/local/bin/su0 /bin/chmod 700 xxx
-which ./xxx
+/usr/bin/sudo /bin/chmod 700 xxx
+whichtest ./xxx
 
 id
 ls -l xxx
-/usr/local/bin/su0 /bin/chmod 750 xxx
-/usr/local/bin/su0 /bin/chgrp carlo xxx
-which ./xxx
+/usr/bin/sudo /bin/chmod 750 xxx
+/usr/bin/sudo /bin/chgrp carlo xxx
+whichtest ./xxx
 
-/usr/local/bin/su0 /bin/chgrp bin xxx
-which ./xxx
+/usr/bin/sudo /bin/chgrp bin xxx
+whichtest ./xxx
 
-alias which='alias | which --tty-only --read-alias --show-tilde --show-dot'
+alias which='alias | whichtest --tty-only --read-alias --show-tilde --show-dot'
 alias test1='test1'
 alias test2='echo "test2" | cat | sort'
 alias test3='  echo "test2"|cat&sort'

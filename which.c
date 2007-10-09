@@ -1,6 +1,6 @@
 /*
  * which v2.x -- print full path of executables
- * Copyright (C) 1999, 2003  Carlo Wood <carlo@gnu.org>
+ * Copyright (C) 1999, 2003, 2007  Carlo Wood <carlo@gnu.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ static void print_usage(FILE *out)
 
 static void print_version(void)
 {
-  fprintf(stdout, "GNU which v" VERSION ", Copyright (C) 1999 - 2003 Carlo Wood.\n");
+  fprintf(stdout, "GNU which v" VERSION ", Copyright (C) 1999 - 2007 Carlo Wood.\n");
   fprintf(stdout, "GNU which comes with ABSOLUTELY NO WARRANTY;\n");
   fprintf(stdout, "This program is free software; your freedom to use, change\n");
   fprintf(stdout, "and distribute this program is protected by the GPL.\n");
@@ -302,6 +302,7 @@ int path_search(int indent, const char *cmd, const char *path_list)
 	  if (skip_tilde)
 	  {
 	    next = 1;
+	    free(result);
 	    continue;
 	  }
 	  if (show_tilde)
