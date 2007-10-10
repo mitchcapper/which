@@ -70,7 +70,7 @@ check)
  ;;
 generate)
   perform_test;
-  cp .testout ../EXAMPLES;
+  cat .testout | sed -e 's%/home/carlo/c/which/which%which%g' > ../EXAMPLES;
   mv .testout .reference;
  exit 0;
  ;;
