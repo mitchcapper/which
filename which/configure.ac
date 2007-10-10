@@ -1,8 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(which.c)
-AM_INIT_AUTOMAKE(which, 2.17)
+AM_INIT_AUTOMAKE(which, 2.18)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
+
+dnl Because we use cwautomacros.
+CW_AUTOMACROS
 
 which_cv_iberty=yes
 AC_ARG_ENABLE(iberty,
