@@ -161,9 +161,9 @@ release: cvslog html @PACKAGE@.lsm NEWS
 	#install -m 644 @PACKAGE@*.html $(WWWDIR)
 	install -m 644 NEWS $(WWWDIR)
 	rm cvslog-@VERSION@*.html
-	#cvs tag $(TAG)
-	#echo "$(TAG)" > .prevtag
-	#date +%s > .release_second
+	cvs tag $(TAG)
+	echo "$(TAG)" > .prevtag
+	date +%s > .release_second
 
 ##-----------------------------------------------------------------------------
 ## `which' specific generation:
