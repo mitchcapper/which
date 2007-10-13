@@ -2,10 +2,10 @@
  * which v2.x -- print full path of executables
  * Copyright (C) 1999, 2003, 2007  Carlo Wood <carlo@gnu.org>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,8 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02110-1301, USA.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "sys.h"
@@ -27,19 +26,27 @@ static const char *progname;
 
 static void print_usage(FILE *out)
 {
-  fprintf(out, "Usage: %s [options] [--] programname [...]\n", progname);
-  fprintf(out, "Options: --version, -[vV] Print version and exit successfully.\n");
-  fprintf(out, "         --help,          Print this help and exit successfully.\n");
-  fprintf(out, "         --skip-dot       Skip directories in PATH that start with a dot.\n");
-  fprintf(out, "         --skip-tilde     Skip directories in PATH that start with a tilde.\n");
-  fprintf(out, "         --show-dot       Don't expand a dot to current directory in output.\n");
-  fprintf(out, "         --show-tilde     Output a tilde for HOME directory for non-root.\n");
-  fprintf(out, "         --tty-only       Stop processing options on the right if not on tty.\n");
-  fprintf(out, "         --all, -a        Print all matches in PATH, not just the first\n");
-  fprintf(out, "         --read-alias, -i Read list of aliases from stdin.\n");
-  fprintf(out, "         --skip-alias     Ignore option --read-alias; don't read stdin.\n");
-  fprintf(out, "         --read-functions Read shell functions from stdin.\n");
-  fprintf(out, "         --skip-functions Ignore option --read-functions; don't read stdin.\n");
+  fprintf(out, "Usage: %s [options] [--] COMMAND [...]\n", progname);
+  fprintf(out, "Write the full path of COMMAND(s) to standard output.\n\n");
+  fprintf(out, "  --version, -[vV] Print version and exit successfully.\n");
+  fprintf(out, "  --help,          Print this help and exit successfully.\n");
+  fprintf(out, "  --skip-dot       Skip directories in PATH that start with a dot.\n");
+  fprintf(out, "  --skip-tilde     Skip directories in PATH that start with a tilde.\n");
+  fprintf(out, "  --show-dot       Don't expand a dot to current directory in output.\n");
+  fprintf(out, "  --show-tilde     Output a tilde for HOME directory for non-root.\n");
+  fprintf(out, "  --tty-only       Stop processing options on the right if not on tty.\n");
+  fprintf(out, "  --all, -a        Print all matches in PATH, not just the first\n");
+  fprintf(out, "  --read-alias, -i Read list of aliases from stdin.\n");
+  fprintf(out, "  --skip-alias     Ignore option --read-alias; don't read stdin.\n");
+  fprintf(out, "  --read-functions Read shell functions from stdin.\n");
+  fprintf(out, "  --skip-functions Ignore option --read-functions; don't read stdin.\n\n");
+  fprintf(out, "Recommended use is to write the output of (alias; declare -f) to standard\n");
+  fprintf(out, "input, so that which can show aliases and shell functions. See which(1) for\n");
+  fprintf(out, "examples.\n\n");
+  fprintf(out, "If the options --read-alias and/or --read-functions are specified then the\n");
+  fprintf(out, "output can be a full alias or function definition, optionally followed by\n");
+  fprintf(out, "the full path of each command used inside of those.\n\n");
+  fprintf(out, "Report bugs to <which-bugs@gnu.org>.\n");
 }
 
 static void print_version(void)
