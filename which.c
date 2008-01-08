@@ -1,6 +1,6 @@
 /*
  * which v2.x -- print full path of executables
- * Copyright (C) 1999, 2003, 2007  Carlo Wood <carlo@gnu.org>
+ * Copyright (C) 1999, 2003, 2007, 2008  Carlo Wood <carlo@gnu.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include "sys.h"
 #include <stdio.h>
+#include <ctype.h>
 #include "getopt.h"
 #include "tilde/tilde.h"
 #include "bash.h"
@@ -51,7 +52,7 @@ static void print_usage(FILE *out)
 
 static void print_version(void)
 {
-  fprintf(stdout, "GNU which v" VERSION ", Copyright (C) 1999 - 2007 Carlo Wood.\n");
+  fprintf(stdout, "GNU which v" VERSION ", Copyright (C) 1999 - 2008 Carlo Wood.\n");
   fprintf(stdout, "GNU which comes with ABSOLUTELY NO WARRANTY;\n");
   fprintf(stdout, "This program is free software; your freedom to use, change\n");
   fprintf(stdout, "and distribute this program is protected by the GPL.\n");
@@ -210,7 +211,11 @@ static char *path_clean_up(const char *path)
 
   do
   {
-    if (!saw_slash || *p1 != '/')
+    /*
+     * Two leading slashes are allowed, having an OS implementation-defined meaning.
+     * See http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap04.html#tag_04_11
+     */
+    if (!saw_slash || *p1 != '/' || (p1 == path + 1 && p1[1] != '/'))
       *p2++ = *p1;
     if (saw_slash_dot && (*p1 == '/'))
       p2 -= 2;
