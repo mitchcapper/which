@@ -21,6 +21,7 @@
 
 #include "sys.h"
 #include <sys/stat.h>
+#include <pwd.h>
 #include "bash.h"
 
 /* Use the type that was determined by configure. */
@@ -413,3 +414,46 @@ make_full_pathname (const char *path, const char *name, int name_len)
   strcpy (full_path + path_len + 1, name);
   return (full_path);
 }
+
+/* From bash-3.2 */
+void
+get_current_user_info ()
+{
+  struct passwd *entry;
+
+  /* Don't fetch this more than once. */
+  if (current_user.user_name == 0)
+    {
+      entry = getpwuid (current_user.uid);
+      if (entry)
+        {
+          current_user.user_name = savestring (entry->pw_name);
+          current_user.shell = (entry->pw_shell && entry->pw_shell[0])
+                                ? savestring (entry->pw_shell)
+                                : savestring ("/bin/sh");
+          current_user.home_dir = savestring (entry->pw_dir);
+        }
+      else
+        {
+          current_user.user_name = "I have no name!";
+          current_user.user_name = savestring (current_user.user_name);
+          current_user.shell = savestring ("/bin/sh");
+          current_user.home_dir = savestring ("/");
+        }
+      endpwent ();
+    }
+}
+
+/* This is present for use by the tilde library. */
+char* sh_get_env_value (const char* v)
+{
+  return getenv(v);
+}
+
+char* sh_get_home_dir(void)
+{
+  if (current_user.home_dir == 0)
+    get_current_user_info();
+  return current_user.home_dir;
+}
+

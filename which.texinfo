@@ -3,6 +3,10 @@
 @setfilename which.info
 @settitle @command{which}: show full path of commands
 @include version.texi
+@dircategory System administration
+@direntry
+* Which: (which).                               Show full path of commands.
+@end direntry
 @c %**end of header
 
 @setchapternewpage odd
@@ -54,7 +58,7 @@ original English.
 @c !END AUTHORS
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2000, by
+Copyright @copyright{} 2000 - 2007, by
 
 Carlo Wood, Run on IRC <carlo@@alinoe.com>
 RSA-1024 0x624ACAD5 1997-01-26                    Sign & Encrypt
