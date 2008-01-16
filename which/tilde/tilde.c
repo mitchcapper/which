@@ -7,7 +7,7 @@
 
    Readline is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
-   Free Software Foundation; either version 1, or (at your option) any
+   Free Software Foundation; either version 2, or (at your option) any
    later version.
 
    Readline is distributed in the hope that it will be useful, but
@@ -17,7 +17,7 @@
 
    You should have received a copy of the GNU General Public License
    along with Readline; see the file COPYING.  If not, write to the Free
-   Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. */
+   Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA. */
 
 #if defined (HAVE_CONFIG_H)
 #  include <config.h>
@@ -43,20 +43,29 @@
 #endif /* HAVE_STDLIB_H */
 
 #include <sys/types.h>
+#if defined (HAVE_PWD_H)
 #include <pwd.h>
+#endif
 
 #include "tilde.h"
 
+#if defined (TEST) || defined (STATIC_MALLOC)
+static void *xmalloc (), *xrealloc ();
+#else
+#  include "xmalloc.h"
+#endif /* TEST || STATIC_MALLOC */
+
 #if !defined (HAVE_GETPW_DECLS)
-extern struct passwd *getpwuid (), *getpwnam ();
+#  if defined (HAVE_GETPWUID)
+extern struct passwd *getpwuid PARAMS((uid_t));
+#  endif
+#  if defined (HAVE_GETPWNAM)
+extern struct passwd *getpwnam PARAMS((const char *));
+#  endif
 #endif /* !HAVE_GETPW_DECLS */
 
 #if !defined (savestring)
-extern char *xmalloc ();
-#  ifndef strcpy
-extern char *strcpy ();
-#  endif
-#define savestring(x) strcpy (xmalloc (1 + strlen (x)), (x))
+#define savestring(x) strcpy ((char *)xmalloc (1 + strlen (x)), (x))
 #endif /* !savestring */
 
 #if !defined (NULL)
@@ -67,62 +76,63 @@ extern char *strcpy ();
 #  endif /* !__STDC__ */
 #endif /* !NULL */
 
-#if defined (TEST) || defined (STATIC_MALLOC)
-static char *xmalloc (), *xrealloc ();
-#else
-extern char *xmalloc (), *xrealloc ();
-#endif /* TEST || STATIC_MALLOC */
-
 /* If being compiled as part of bash, these will be satisfied from
    variables.o.  If being compiled as part of readline, they will
    be satisfied from shell.o. */
-extern char *get_home_dir ();
-extern char *get_env_value ();
+extern char *sh_get_home_dir PARAMS((void));
+extern char *sh_get_env_value PARAMS((const char *));
 
 /* The default value of tilde_additional_prefixes.  This is set to
    whitespace preceding a tilde so that simple programs which do not
    perform any word separation get desired behaviour. */
-static char *default_prefixes[] =
-  { " ~", "\t~", (char *)NULL };
+static const char *default_prefixes[] =
+  { " ~", "\t~", (const char *)NULL };
 
 /* The default value of tilde_additional_suffixes.  This is set to
    whitespace or newline so that simple programs which do not
    perform any word separation get desired behaviour. */
-static char *default_suffixes[] =
-  { " ", "\n", (char *)NULL };
+static const char *default_suffixes[] =
+  { " ", "\n", (const char *)NULL };
 
 /* If non-null, this contains the address of a function that the application
    wants called before trying the standard tilde expansions.  The function
    is called with the text sans tilde, and returns a malloc()'ed string
    which is the expansion, or a NULL pointer if the expansion fails. */
-CPFunction *tilde_expansion_preexpansion_hook = (CPFunction *)NULL;
+tilde_hook_func_t *tilde_expansion_preexpansion_hook = (tilde_hook_func_t *)NULL;
 
 /* If non-null, this contains the address of a function to call if the
    standard meaning for expanding a tilde fails.  The function is called
    with the text (sans tilde, as in "foo"), and returns a malloc()'ed string
    which is the expansion, or a NULL pointer if there is no expansion. */
-CPFunction *tilde_expansion_failure_hook = (CPFunction *)NULL;
+tilde_hook_func_t *tilde_expansion_failure_hook = (tilde_hook_func_t *)NULL;
 
 /* When non-null, this is a NULL terminated array of strings which
    are duplicates for a tilde prefix.  Bash uses this to expand
    `=~' and `:~'. */
-char **tilde_additional_prefixes = default_prefixes;
+char **tilde_additional_prefixes = (char **)default_prefixes;
 
 /* When non-null, this is a NULL terminated array of strings which match
    the end of a username, instead of just "/".  Bash sets this to
    `:' and `=~'. */
-char **tilde_additional_suffixes = default_suffixes;
+char **tilde_additional_suffixes = (char **)default_suffixes;
+
+static int tilde_find_prefix PARAMS((const char *, int *));
+static int tilde_find_suffix PARAMS((const char *));
+static char *isolate_tilde_prefix PARAMS((const char *, int *));
+static char *glue_prefix_and_suffix PARAMS((char *, const char *, int));
 
 /* Find the start of a tilde expansion in STRING, and return the index of
    the tilde which starts the expansion.  Place the length of the text
    which identified this tilde starter in LEN, excluding the tilde itself. */
 static int
 tilde_find_prefix (string, len)
-     char *string;
+     const char *string;
      int *len;
 {
   register int i, j, string_len;
-  register char **prefixes = tilde_additional_prefixes;
+  register char **prefixes;
+
+  prefixes = tilde_additional_prefixes;
 
   string_len = strlen (string);
   *len = 0;
@@ -151,7 +161,7 @@ tilde_find_prefix (string, len)
    the character which ends the tilde definition.  */
 static int
 tilde_find_suffix (string)
-     char *string;
+     const char *string;
 {
   register int i, j, string_len;
   register char **suffixes;
@@ -161,7 +171,11 @@ tilde_find_suffix (string)
 
   for (i = 0; i < string_len; i++)
     {
+#if defined (__MSDOS__)
+      if (string[i] == '/' || string[i] == '\\' /* || !string[i] */)
+#else
       if (string[i] == '/' /* || !string[i] */)
+#endif
 	break;
 
       for (j = 0; suffixes && suffixes[j]; j++)
@@ -176,16 +190,16 @@ tilde_find_suffix (string)
 /* Return a new string which is the result of tilde expanding STRING. */
 char *
 tilde_expand (string)
-     char *string;
+     const char *string;
 {
   char *result;
   int result_size, result_index;
 
   result_index = result_size = 0;
   if (result = strchr (string, '~'))
-    result = xmalloc (result_size = (strlen (string) + 16));
+    result = (char *)xmalloc (result_size = (strlen (string) + 16));
   else
-    result = xmalloc (result_size = (strlen (string) + 1));
+    result = (char *)xmalloc (result_size = (strlen (string) + 1));
 
   /* Scan through STRING expanding tildes as we come to them. */
   while (1)
@@ -199,7 +213,7 @@ tilde_expand (string)
 
       /* Copy the skipped text into the result. */
       if ((result_index + start + 1) > result_size)
-	result = xrealloc (result, 1 + (result_size += (start + 20)));
+	result = (char *)xrealloc (result, 1 + (result_size += (start + 20)));
 
       strncpy (result + result_index, string, start);
       result_index += start;
@@ -216,7 +230,7 @@ tilde_expand (string)
 	break;
 
       /* Expand the entire tilde word, and copy it into RESULT. */
-      tilde_word = xmalloc (1 + end);
+      tilde_word = (char *)xmalloc (1 + end);
       strncpy (tilde_word, string, end);
       tilde_word[end] = '\0';
       string += end;
@@ -225,11 +239,18 @@ tilde_expand (string)
       free (tilde_word);
 
       len = strlen (expansion);
-      if ((result_index + len + 1) > result_size)
-	result = xrealloc (result, 1 + (result_size += (len + 20)));
+#ifdef __CYGWIN__
+      /* Fix for Cygwin to prevent ~user/xxx from expanding to //xxx when
+	 $HOME for `user' is /.  On cygwin, // denotes a network drive. */
+      if (len > 1 || *expansion != '/' || *string != '/')
+#endif
+	{
+	  if ((result_index + len + 1) > result_size)
+	    result = (char *)xrealloc (result, 1 + (result_size += (len + 20)));
 
-      strcpy (result + result_index, expansion);
-      result_index += len;
+	  strcpy (result + result_index, expansion);
+	  result_index += len;
+	}
       free (expansion);
     }
 
@@ -243,14 +264,18 @@ tilde_expand (string)
    the location it points to. */
 static char *
 isolate_tilde_prefix (fname, lenp)
-     char *fname;
+     const char *fname;
      int *lenp;
 {
   char *ret;
   int i;
 
-  ret = xmalloc (strlen (fname));
+  ret = (char *)xmalloc (strlen (fname));
+#if defined (__MSDOS__)
+  for (i = 1; fname[i] && fname[i] != '/' && fname[i] != '\\'; i++)
+#else
   for (i = 1; fname[i] && fname[i] != '/'; i++)
+#endif
     ret[i - 1] = fname[i];
   ret[i - 1] = '\0';
   if (lenp)
@@ -258,11 +283,45 @@ isolate_tilde_prefix (fname, lenp)
   return ret;
 }
 
+#if 0
+/* Public function to scan a string (FNAME) beginning with a tilde and find
+   the portion of the string that should be passed to the tilde expansion
+   function.  Right now, it just calls tilde_find_suffix and allocates new
+   memory, but it can be expanded to do different things later. */
+char *
+tilde_find_word (fname, flags, lenp)
+     const char *fname;
+     int flags, *lenp;
+{
+  int x;
+  char *r;
+
+  x = tilde_find_suffix (fname);
+  if (x == 0)
+    {
+      r = savestring (fname);
+      if (lenp)
+	*lenp = 0;
+    }
+  else
+    {
+      r = (char *)xmalloc (1 + x);
+      strncpy (r, fname, x);
+      r[x] = '\0';
+      if (lenp)
+	*lenp = x;
+    }
+
+  return r;
+}
+#endif
+
 /* Return a string that is PREFIX concatenated with SUFFIX starting at
    SUFFIND. */
 static char *
 glue_prefix_and_suffix (prefix, suffix, suffind)
-     char *prefix, *suffix;
+     char *prefix;
+     const char *suffix;
      int suffind;
 {
   char *ret;
@@ -270,8 +329,8 @@ glue_prefix_and_suffix (prefix, suffix, suffind)
 
   plen = (prefix && *prefix) ? strlen (prefix) : 0;
   slen = strlen (suffix + suffind);
-  ret = xmalloc (plen + slen + 1);
-  if (prefix && *prefix)
+  ret = (char *)xmalloc (plen + slen + 1);
+  if (plen)
     strcpy (ret, prefix);
   strcpy (ret + plen, suffix + suffind);
   return ret;
@@ -282,7 +341,7 @@ glue_prefix_and_suffix (prefix, suffix, suffind)
    This always returns a newly-allocated string, never static storage. */
 char *
 tilde_expand_word (filename)
-     char *filename;
+     const char *filename;
 {
   char *dirname, *expansion, *username;
   int user_len;
@@ -300,12 +359,12 @@ tilde_expand_word (filename)
   if (filename[1] == '\0' || filename[1] == '/')
     {
       /* Prefix $HOME to the rest of the string. */
-      expansion = get_env_value ("HOME");
+      expansion = sh_get_env_value ("HOME");
 
       /* If there is no HOME variable, look up the directory in
 	 the password database. */
       if (expansion == 0)
-	expansion = get_home_dir ();
+	expansion = sh_get_home_dir ();
 
       return (glue_prefix_and_suffix (expansion, filename, 1));
     }
@@ -327,7 +386,11 @@ tilde_expand_word (filename)
   /* No preexpansion hook, or the preexpansion hook failed.  Look in the
      password database. */
   dirname = (char *)NULL;
+#if defined (HAVE_GETPWNAM)
   user_entry = getpwnam (username);
+#else
+  user_entry = 0;
+#endif
   if (user_entry == 0)
     {
       /* If the calling program has a special syntax for expanding tildes,
@@ -341,19 +404,20 @@ tilde_expand_word (filename)
 	      free (expansion);
 	    }
 	}
-      free (username);
       /* If we don't have a failure hook, or if the failure hook did not
 	 expand the tilde, return a copy of what we were passed. */
       if (dirname == 0)
 	dirname = savestring (filename);
     }
+#if defined (HAVE_GETPWENT)
   else
-    {
-      free (username);
-      dirname = glue_prefix_and_suffix (user_entry->pw_dir, filename, user_len);
-    }
+    dirname = glue_prefix_and_suffix (user_entry->pw_dir, filename, user_len);
+#endif
 
+  free (username);
+#if defined (HAVE_GETPWENT)
   endpwent ();
+#endif
   return (dirname);
 }
 
@@ -394,28 +458,28 @@ main (argc, argv)
 
 static void memory_error_and_abort ();
 
-static char *
+static void *
 xmalloc (bytes)
-     int bytes;
+     size_t bytes;
 {
-  char *temp = (char *)malloc (bytes);
+  void *temp = (char *)malloc (bytes);
 
   if (!temp)
     memory_error_and_abort ();
   return (temp);
 }
 
-static char *
+static void *
 xrealloc (pointer, bytes)
-     char *pointer;
+     void *pointer;
      int bytes;
 {
-  char *temp;
+  void *temp;
 
   if (!pointer)
-    temp = (char *)malloc (bytes);
+    temp = malloc (bytes);
   else
-    temp = (char *)realloc (pointer, bytes);
+    temp = realloc (pointer, bytes);
 
   if (!temp)
     memory_error_and_abort ();

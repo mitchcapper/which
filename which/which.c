@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
   {
     const char *h;
 
-    if (!(h = getenv("HOME")))
+    if (!(h = getenv("HOME")) && !(h = sh_get_home_dir()))
     {
       fprintf(stderr, "%s: ", progname);
       if (show_tilde)

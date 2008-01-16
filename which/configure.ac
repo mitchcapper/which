@@ -25,7 +25,6 @@ fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_FUNCS(strchr memcpy getopt_long)
 AC_CHECK_HEADERS(unistd.h string.h libiberty.h)
 AC_HEADER_STAT
 
@@ -35,7 +34,7 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_TYPE_GETGROUPS
-AC_CHECK_FUNCS(getcwd getwd)
+AC_CHECK_FUNCS(strchr memcpy getopt_long getcwd getwd)
 
 if test "$ac_cv_lib_static_libiberty_a_xmalloc" = no \
      -o "$which_cv_iberty" = no ; then
@@ -45,7 +44,8 @@ fi
 dnl Additional stuff needed for the tilde directory
 AC_CHECK_PROG(AR, ar, ar, ar)
 AC_PROG_RANLIB
-AC_CHECK_HEADERS(stdlib.h)
+AC_CHECK_HEADERS(stdlib.h memory.h pwd.h strings.h)
+AC_CHECK_FUNCS(getpwent getpwnam getpwuid)
 BASH_CHECK_GETPW_FUNCS
 
 dnl Generate output files.

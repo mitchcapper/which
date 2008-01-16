@@ -7,7 +7,9 @@ Version 2.18 --> 2.19
   This means that GNU which no longer collapses two leading slashes
   of a path into a single slash.
 * Fixed the function declaration given in README.alias
-* Downgraded the license to GPLv3.
+* Added a @dircategory and @direntry to which.texinfo
+* Upgraded the tilde directory to bash 3.2.
+* Changed the license to GPLv3.
 
 Version 2.17 --> 2.18
 
