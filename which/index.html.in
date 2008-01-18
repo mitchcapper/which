@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML LANG="en">
-<!-- $Id: index.html.in,v 1.16 2003-09-12 02:48:46 carlo Exp $ -->
+<!-- $Id: index.html.in,v 1.17 2008-01-18 18:19:11 carlo Exp $ -->
 <HEAD>
 	<META name="Author" content="Carlo Wood">
 	<META http-equiv="content-type" content="text/html; charset=iso-8859-1">
@@ -14,12 +14,8 @@
 
 <H2>Downloading</H2>
 
-<P>The i386.rpm is linked against glibc-2.3.2</P>
-
 <P>
 <LI><A HREF="which-!VERSION!.tar.gz">which-!VERSION!.tar.gz</A>
-<LI><A HREF="which-!VERSION!-1.i386.rpm">which-!VERSION!-1.i386.rpm</A>
-<LI><A HREF="which-!VERSION!-1.src.rpm">which-!VERSION!-1.src.rpm</A>
 </P>
 
 <P><LI><A HREF="which.lsm">which.lsm</A></P>
