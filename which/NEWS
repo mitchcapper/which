@@ -1,14 +1,19 @@
 Version 2.18 --> 2.19
 
-* Two leading slashes are now treated as possibly special, because
-  a double leading slash can have an implementation-defined meaning
-  (depending on the Operating System), as is for example the case
-  in Cygwin. See http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap04.html#tag_04_11
+* Upgraded code from bash to version 3.2. This DOES has influence
+  on how Which behaves under certain circumstances.
+* Support for Cygwin: Two leading slashes are now treated as
+  possibly special, because a double leading slash can have an
+  implementation-defined meaning (depending on the Operating
+  System), as is for example the case in Cygwin.
+  See http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap04.html#tag_04_11
   This means that GNU which no longer collapses two leading slashes
   of a path into a single slash.
+* When the environment variable HOME is not set, the home directory
+  is now read from /etc/passwd or set to '/' if no home directory
+  could be found (this now matches the tilde lib used in bash).
 * Fixed the function declaration given in README.alias
 * Added a @dircategory and @direntry to which.texinfo
-* Upgraded the tilde directory to bash 3.2.
 * Changed the license to GPLv3.
 
 Version 2.17 --> 2.18
