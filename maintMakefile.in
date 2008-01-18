@@ -71,7 +71,7 @@
 #	Generates the `ChangeLog' file from the CVS repository logs.
 
 WWWDIR=/home/carlo/www/@PACKAGE@
-REDHAT:=$(shell grep '^%_topdir' rpm/macros | cut -d \  -f 2)
+#REDHAT:=$(shell grep '^%_topdir' rpm/macros | cut -d \  -f 2)
 SPECFILE=@PACKAGE@-${shell echo "@VERSION@" | cut -d. -f1}.spec
 RPMDIR=$(top_builddir)/rpm
 TARGET=i386
@@ -83,7 +83,6 @@ CVSREADACCESS:=${shell if test -f $(srcdir)/CVS/Entries; then echo "yes"; else e
 
 test-values:
 	@echo "WWWDIR        = \"$(WWWDIR)\""
-	@echo "REDHAT        = \"$(REDHAT)\""
 	@echo "SPECFILE      = \"$(SPECFILE)\""
 	@echo "TARGET        = \"$(TARGET)\""
 	@echo "REL           = \"$(REL)\""
@@ -104,7 +103,7 @@ texinfo2man: ../indent/texinfo2man.c
 	$(CC) -g -o texinfo2man ../indent/texinfo2man.c
 
 @PACKAGE@.lsm: @PACKAGE@.lsm.in configure.ac
-	sed -e 's%!VERSION!%'`grep 's,@VERSION' config.status | cut -d, -f3`'%g' @PACKAGE@.lsm.in > @PACKAGE@.lsm
+	sed -e 's%!VERSION!%'`grep 's,@VERSION' config.status | cut -d, -f3 | sed -e 's/|.*|//'`'%g' @PACKAGE@.lsm.in > @PACKAGE@.lsm
 
 rpm: dist $(SPECFILE) $(LSMFILE)
 	mv @PACKAGE@-@VERSION@.tar.gz $(RPMDIR)/SOURCES
