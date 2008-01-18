@@ -509,26 +509,16 @@ int main(int argc, char *argv[])
   {
     const char *h;
 
-    if (!(h = getenv("HOME")) && !(h = sh_get_home_dir()))
+    if (!(h = getenv("HOME")))
+      h = sh_get_home_dir();
+
+    strncpy(home, h, sizeof(home));
+    home[sizeof(home) - 1] = 0;
+    homelen = strlen(home);
+    if (home[homelen - 1] != '/' && homelen < sizeof(home) - 1)
     {
-      fprintf(stderr, "%s: ", progname);
-      if (show_tilde)
-	fprintf(stderr, "--show-tilde");
-      else
-	fprintf(stderr, "--skip-tilde");
-      fprintf(stderr, ": Environment variable HOME not set\n");
-      show_tilde = skip_tilde = 0;
-    }
-    else
-    {
-      strncpy(home, h, sizeof(home));
-      home[sizeof(home) - 1] = 0;
-      homelen = strlen(home);
-      if (home[homelen - 1] != '/' && homelen < sizeof(home) - 1)
-      {
-	strcat(home, "/");
-	++homelen;
-      }
+      strcat(home, "/");
+      ++homelen;
     }
   }
 
