@@ -20,7 +20,7 @@
  */
 
 #include "sys.h"
-#include <sys/stat.h>
+#include "posixstat.h"
 #include <pwd.h>
 #include "bash.h"
 
@@ -42,20 +42,20 @@
  * - Added prototypes,
  * - used ANSI function arguments,
  * - made all functions static and
- * - changed all occurences of 'char *' into 'const char *' where possible.
+ * - changed all occurences of 'char *' into 'char const*' where possible.
  * - changed all occurences of 'gid_t' into 'GID_T'.
  * - exported functions needed in which.c
  */
 static int group_member (GID_T gid);
-static char* extract_colon_unit (char const* string, int *p_index);
+static char* extract_colon_unit (char const* string, int* p_index);
 
 /*===========================================================================
  *
- * Everything below is from bash-2.0.5b.
+ * Everything below is from bash-3.2.
  *
  */
 
-/* From bash-2.05b / shell.h / line 104 */
+/* From bash-3.2 / shell.h / line 105 */
 /* Information about the current user. */
 struct user_info {
   uid_t uid, euid;
@@ -65,7 +65,7 @@ struct user_info {
   char *home_dir;
 };
 
-/* From bash-2.05b / shell.c / line 108 */
+/* From bash-3.2 / shell.c / line 111 */
 /* Information about the current user. */
 struct user_info current_user =
 {
@@ -73,10 +73,10 @@ struct user_info current_user =
   (char *)NULL, (char *)NULL, (char *)NULL
 };
 
-/* From bash-2.05b / general.h / line 152 */
+/* From bash-3.2 / general.h / line 153 */
 #define FREE(s)  do { if (s) free (s); } while (0)
 
-/* From bash-2.05b / shell.c / line 1097 */
+/* From bash-3.2 / shell.c / line 1136 */
 /* Fetch the current set of uids and gids and return 1 if we're running
    setuid or setgid. */
 int
@@ -102,22 +102,22 @@ uidget ()
            (current_user.gid != current_user.egid);
 }
 
-/* From bash-2.05b / general.c / line 744 */
+/* From bash-3.2 / general.c / line 870 */
 static int ngroups, maxgroups;
 
-/* From bash-2.05b / general.c / line 746 */
+/* From bash-3.2 / general.c / line 872 */
 /* The set of groups that this user is a member of. */
 static GETGROUPS_T *group_array = (GETGROUPS_T *)NULL;
 
-/* From bash-2.05b / general.c / line 749 */
+/* From bash-3.2 / general.c / line 875 */
 #if !defined (NOGROUP)
 #  define NOGROUP (GID_T) -1
 #endif
 
-/* From bash-2.05b / lib/sh/oslib.c / line 245 */
+/* From bash-3.2 / lib/sh/oslib.c / line 245 */
 #define DEFAULT_MAXGROUPS 64
 
-/* From bash-2.05b / lib/sh/oslib.c / line 247 */
+/* From bash-3.2 / lib/sh/oslib.c / line 247 */
 int
 getmaxgroups ()
 {
@@ -146,7 +146,7 @@ getmaxgroups ()
   return maxgroups;
 }
 
-/* From bash-2.05b / general.c / line 753 */
+/* From bash-3.2 / general.c / line 879 */
 static void
 initialize_group_array ()
 {
@@ -199,7 +199,7 @@ initialize_group_array ()
     }
 }
 
-/* From bash-2.05b / general.c / line 805 */
+/* From bash-3.2 / general.c / line 931 */
 /* Return non-zero if GID is one that we have in our groups list. */
 int
 group_member (GID_T gid)
@@ -229,13 +229,7 @@ group_member (GID_T gid)
   return (0);
 }
 
-/* From bash-2.05b / findcmd.c / line 75 */
-#define u_mode_bits(x) (((x) & 0000700) >> 6)
-#define g_mode_bits(x) (((x) & 0000070) >> 3)
-#define o_mode_bits(x) (((x) & 0000007) >> 0)
-#define X_BIT(x) ((x) & 1)
-
-/* From bash-2.05b / findcmd.c / line 80 */
+/* From bash-3.2 / findcmd.c / line 75 */
 /* Return some flags based on information about this file.
    The EXISTS bit is non-zero if the file is found.
    The EXECABLE bit is non-zero the file is executble.
@@ -244,6 +238,7 @@ int
 file_status (char const* name)
 {
   struct stat finfo;
+  int r;
 
   /* Determine whether this file exists or not. */
   if (stat (name, &finfo) < 0)
@@ -254,55 +249,66 @@ file_status (char const* name)
   if (S_ISDIR (finfo.st_mode))
     return (FS_EXISTS|FS_DIRECTORY);
 
+  r = FS_EXISTS;
+
 #if defined (AFS)
   /* We have to use access(2) to determine access because AFS does not
      support Unix file system semantics.  This may produce wrong
      answers for non-AFS files when ruid != euid.  I hate AFS. */
   if (access (name, X_OK) == 0)
-    return (FS_EXISTS | FS_EXECABLE);
-  else
-    return (FS_EXISTS);
+    r |= FS_EXECABLE;
+  if (access (name, R_OK) == 0)
+    r |= FS_READABLE;
+
+  return r;
 #else /* !AFS */
 
   /* Find out if the file is actually executable.  By definition, the
      only other criteria is that the file has an execute bit set that
-     we can use. */
+     we can use.  The same with whether or not a file is readable. */
 
   /* Root only requires execute permission for any of owner, group or
-     others to be able to exec a file. */
+     others to be able to exec a file, and can read any file. */
   if (current_user.euid == (uid_t)0)
     {
-      int bits;
-
-      bits = (u_mode_bits (finfo.st_mode) |
-              g_mode_bits (finfo.st_mode) |
-              o_mode_bits (finfo.st_mode));
-
-      if (X_BIT (bits))
-        return (FS_EXISTS | FS_EXECABLE);
+      r |= FS_READABLE;
+      if (finfo.st_mode & S_IXUGO)
+	r |= FS_EXECABLE;
+      return r;
     }
 
-  /* GNU which comment: The part below was changed to ONLY return FS_EXECABLE
-     when the file is *really* executable.  A bug report has been filed with
-     the bash maintainers and was accepted, the behaviour of the next bash
-     version (after 2.0.5b) should be the same again. */
-  /* If we are the owner of the file, the owner execute bit applies. */
+  /* If we are the owner of the file, the owner bits apply. */
   if (current_user.euid == finfo.st_uid)
-    return (X_BIT (u_mode_bits (finfo.st_mode))) ? (FS_EXISTS | FS_EXECABLE) : FS_EXISTS;
+    {
+      if (finfo.st_mode & S_IXUSR)
+	r |= FS_EXECABLE;
+      if (finfo.st_mode & S_IRUSR)
+	r |= FS_READABLE;
+    }
 
-  /* Otherwise, if we are in the owning group, the group permissions apply. */
-  if (group_member (finfo.st_gid))
-    return (X_BIT (g_mode_bits (finfo.st_mode))) ? (FS_EXISTS | FS_EXECABLE) : FS_EXISTS;
+  /* If we are in the owning group, the group permissions apply. */
+  else if (group_member (finfo.st_gid))
+    {
+      if (finfo.st_mode & S_IXGRP)
+	r |= FS_EXECABLE;
+      if (finfo.st_mode & S_IRGRP)
+	r |= FS_READABLE;
+    }
 
-  /* Otherwise, if we are in the other group, the other permissions apply. */
-  if (X_BIT (o_mode_bits (finfo.st_mode)))
-    return (FS_EXISTS | FS_EXECABLE);
+  /* Else we check whether `others' have permission to execute the file */
+  else
+    {
+      if (finfo.st_mode & S_IXOTH)
+	r |= FS_EXECABLE;
+      if (finfo.st_mode & S_IROTH)
+	r |= FS_READABLE;
+    }
 
-  return (FS_EXISTS);
+  return r;
 #endif /* !AFS */
 }
 
-/* From bash-2.05b / general.c / line 501 ; Changes: Using 'strchr' instead of 'xstrchr'. */
+/* From bash-3.2 / general.c / line 534 ; Changes: Using 'strchr' instead of 'xstrchr'. */
 /* Return 1 if STRING is an absolute program name; it is absolute if it
    contains any slashes.  This is used to decide whether or not to look
    up through $PATH. */
@@ -312,7 +318,7 @@ absolute_program (char const* string)
   return ((char *)strchr (string, '/') != (char *)NULL);
 }
 
-/* From bash-2.05b / stringlib.c / line 124 */
+/* From bash-3.2 / stringlib.c / line 124 */
 /* Cons a new string from STRING starting at START and ending at END,
    not including END. */
 char *
@@ -328,7 +334,7 @@ substring (char const* string, int start, int end)
   return (result);
 }
 
-/* From bash-2.05b / general.c / line 573 */
+/* From bash-3.2 / general.c / line 644 ; changes: Return NULL instead of 'string' when string == 0. */
 /* Given a string containing units of information separated by colons,
    return the next one pointed to by (P_INDEX), or NULL if there are no more.
    Advance (P_INDEX) to the character after the colon. */
@@ -416,7 +422,7 @@ make_full_pathname (const char *path, const char *name, int name_len)
 }
 
 /* From bash-3.2 */
-void
+static void
 get_current_user_info ()
 {
   struct passwd *entry;
@@ -452,7 +458,7 @@ char* sh_get_env_value (const char* v)
 
 char* sh_get_home_dir(void)
 {
-  if (current_user.home_dir == 0)
+  if (current_user.home_dir == NULL)
     get_current_user_info();
   return current_user.home_dir;
 }
