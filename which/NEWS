@@ -1,3 +1,9 @@
+Version 2.19 --> 2.20
+
+* xmalloc.h included a readline header for no apparent reason. The compilation
+  failed if readline was not installed. The dependency on the readline header
+  was removed. Submitted by Tushar Teredesai.
+
 Version 2.18 --> 2.19
 
 * Upgraded code from bash to version 3.2. This DOES has influence
