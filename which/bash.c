@@ -45,8 +45,9 @@
  * - changed all occurences of 'char *' into 'char const*' where possible.
  * - changed all occurences of 'gid_t' into 'GID_T'.
  * - exported functions needed in which.c
+ * - renamed group_member to w_group_member.
  */
-static int group_member (GID_T gid);
+static int w_group_member (GID_T gid);
 static char* extract_colon_unit (char const* string, int* p_index);
 
 /*===========================================================================
@@ -202,7 +203,7 @@ initialize_group_array ()
 /* From bash-3.2 / general.c / line 931 */
 /* Return non-zero if GID is one that we have in our groups list. */
 int
-group_member (GID_T gid)
+w_group_member (GID_T gid)
 {
 #if defined (HAVE_GETGROUPS)
   register int i;
@@ -287,7 +288,7 @@ file_status (char const* name)
     }
 
   /* If we are in the owning group, the group permissions apply. */
-  else if (group_member (finfo.st_gid))
+  else if (w_group_member (finfo.st_gid))
     {
       if (finfo.st_mode & S_IXGRP)
 	r |= FS_EXECABLE;
