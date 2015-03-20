@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(which.c)
-AM_INIT_AUTOMAKE(which, 2.20)
+AC_INIT([which], [2.21])
+AC_CONFIG_SRCDIR(which.c)
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
@@ -34,7 +35,7 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_TYPE_GETGROUPS
-AC_CHECK_FUNCS(strchr memcpy getopt_long getcwd getwd)
+AC_CHECK_FUNCS(strchr memcpy getopt_long getcwd getwd sysconf getgroups eaccess)
 
 if test "$ac_cv_lib_static_libiberty_a_xmalloc" = no \
      -o "$which_cv_iberty" = no ; then

@@ -1,4 +1,4 @@
-/* From bash-3.2 / general.h / line 228 */
+/* From bash-4.3 / general.h / line 228 */
 /* Some defines for calling file status functions. */
 #define FS_EXISTS         0x1
 #define FS_EXECABLE       0x2
@@ -8,7 +8,7 @@
 #define FS_NODIRS         0x20
 #define FS_READABLE       0x40
 
-/* From bash-3.2 / general.h / line 69 */
+/* From bash-4.3 / general.h / line 69 */
 #define savestring(x) (char *)strcpy(xmalloc(1 + strlen (x)), (x))
 
 extern int file_status(const char *name);

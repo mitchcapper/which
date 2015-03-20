@@ -22,6 +22,7 @@
 #include "sys.h"
 #include "posixstat.h"
 #include <pwd.h>
+#include <unistd.h>
 #include "bash.h"
 
 /* Use the type that was determined by configure. */
@@ -32,7 +33,6 @@
  * Perhaps these need new configure.in entries.
  * The following macro's are used in bash, and below:
  */
-#define HAVE_GETGROUPS
 #undef SHELL
 #undef AFS
 #undef NOGROUP
@@ -45,18 +45,16 @@
  * - changed all occurences of 'char *' into 'char const*' where possible.
  * - changed all occurences of 'gid_t' into 'GID_T'.
  * - exported functions needed in which.c
- * - renamed group_member to w_group_member.
  */
-static int w_group_member (GID_T gid);
 static char* extract_colon_unit (char const* string, int* p_index);
 
 /*===========================================================================
  *
- * Everything below is from bash-3.2.
+ * Everything below is from bash-4.3.
  *
  */
 
-/* From bash-3.2 / shell.h / line 105 */
+/* From bash-4.3 / shell.h / line 113 */
 /* Information about the current user. */
 struct user_info {
   uid_t uid, euid;
@@ -66,7 +64,7 @@ struct user_info {
   char *home_dir;
 };
 
-/* From bash-3.2 / shell.c / line 111 */
+/* From bash-4.3 / shell.c / line 116 */
 /* Information about the current user. */
 struct user_info current_user =
 {
@@ -74,10 +72,10 @@ struct user_info current_user =
   (char *)NULL, (char *)NULL, (char *)NULL
 };
 
-/* From bash-3.2 / general.h / line 153 */
+/* From bash-4.3 / general.h / line 153 */
 #define FREE(s)  do { if (s) free (s); } while (0)
 
-/* From bash-3.2 / shell.c / line 1136 */
+/* From bash-4.3 / shell.c / line 1201 */
 /* Fetch the current set of uids and gids and return 1 if we're running
    setuid or setgid. */
 int
@@ -103,22 +101,22 @@ uidget ()
            (current_user.gid != current_user.egid);
 }
 
-/* From bash-3.2 / general.c / line 870 */
+/* From bash-4.3 / general.c / line 1018 */
 static int ngroups, maxgroups;
 
-/* From bash-3.2 / general.c / line 872 */
+/* From bash-4.3 / general.c / line 1020 */
 /* The set of groups that this user is a member of. */
 static GETGROUPS_T *group_array = (GETGROUPS_T *)NULL;
 
-/* From bash-3.2 / general.c / line 875 */
+/* From bash-4.3 / general.c / line 1023 */
 #if !defined (NOGROUP)
 #  define NOGROUP (GID_T) -1
 #endif
 
-/* From bash-3.2 / lib/sh/oslib.c / line 245 */
+/* From bash-4.3 / lib/sh/oslib.c / line 250 */
 #define DEFAULT_MAXGROUPS 64
 
-/* From bash-3.2 / lib/sh/oslib.c / line 247 */
+/* From bash-4.3 / lib/sh/oslib.c / line 252 */
 int
 getmaxgroups ()
 {
@@ -147,7 +145,7 @@ getmaxgroups ()
   return maxgroups;
 }
 
-/* From bash-3.2 / general.c / line 879 */
+/* From bash-4.3 / general.c / line 1027 */
 static void
 initialize_group_array ()
 {
@@ -200,10 +198,15 @@ initialize_group_array ()
     }
 }
 
-/* From bash-3.2 / general.c / line 931 */
+/* From bash-4.3 / general.c / line 1079 */
 /* Return non-zero if GID is one that we have in our groups list. */
 int
-w_group_member (GID_T gid)
+#if defined (__STDC__) || defined ( _MINIX)
+group_member (GID_T gid)
+#else
+group_member (gid)
+     GID_T gid;
+#endif /* !__STDC__ && !_MINIX */
 {
 #if defined (HAVE_GETGROUPS)
   register int i;
@@ -230,7 +233,7 @@ w_group_member (GID_T gid)
   return (0);
 }
 
-/* From bash-3.2 / findcmd.c / line 75 */
+/* From bash-4.3 / findcmd.c / line 80 */
 /* Return some flags based on information about this file.
    The EXISTS bit is non-zero if the file is found.
    The EXECABLE bit is non-zero the file is executble.
@@ -252,7 +255,18 @@ file_status (char const* name)
 
   r = FS_EXISTS;
 
-#if defined (AFS)
+#if defined (HAVE_EACCESS)
+  /* Use eaccess(2) if we have it to take things like ACLs and other
+     file access mechanisms into account.  eaccess uses the effective
+     user and group IDs, not the real ones.  We could use sh_eaccess,
+     but we don't want any special treatment for /dev/fd. */
+  if (eaccess (name, X_OK) == 0)
+    r |= FS_EXECABLE;
+  if (eaccess (name, R_OK) == 0)
+    r |= FS_READABLE;
+
+  return r;
+#elif defined (AFS)
   /* We have to use access(2) to determine access because AFS does not
      support Unix file system semantics.  This may produce wrong
      answers for non-AFS files when ruid != euid.  I hate AFS. */
@@ -288,7 +302,7 @@ file_status (char const* name)
     }
 
   /* If we are in the owning group, the group permissions apply. */
-  else if (w_group_member (finfo.st_gid))
+  else if (group_member (finfo.st_gid))
     {
       if (finfo.st_mode & S_IXGRP)
 	r |= FS_EXECABLE;
@@ -309,7 +323,7 @@ file_status (char const* name)
 #endif /* !AFS */
 }
 
-/* From bash-3.2 / general.c / line 534 ; Changes: Using 'strchr' instead of 'xstrchr'. */
+/* From bash-4.3 / general.c / line 604 ; Changes: Using 'strchr' instead of 'mbschr'. */
 /* Return 1 if STRING is an absolute program name; it is absolute if it
    contains any slashes.  This is used to decide whether or not to look
    up through $PATH. */
@@ -319,7 +333,7 @@ absolute_program (char const* string)
   return ((char *)strchr (string, '/') != (char *)NULL);
 }
 
-/* From bash-3.2 / stringlib.c / line 124 */
+/* From bash-4.3 / stringlib.c / line 124 */
 /* Cons a new string from STRING starting at START and ending at END,
    not including END. */
 char *
@@ -330,12 +344,12 @@ substring (char const* string, int start, int end)
 
   len = end - start;
   result = (char *)xmalloc (len + 1);
-  strncpy (result, string + start, len);
+  memcpy (result, string + start, len);
   result[len] = '\0';
   return (result);
 }
 
-/* From bash-3.2 / general.c / line 644 ; changes: Return NULL instead of 'string' when string == 0. */
+/* From bash-4.3 / general.c / line 780 ; changes: Return NULL instead of 'string' when string == 0. */
 /* Given a string containing units of information separated by colons,
    return the next one pointed to by (P_INDEX), or NULL if there are no more.
    Advance (P_INDEX) to the character after the colon. */
@@ -381,7 +395,7 @@ extract_colon_unit (char const* string, int* p_index)
   return (value);
 }
 
-/* From bash-2.05b / findcmd.c / line 242 */
+/* From bash-4.3 / findcmd.c / line 273 */
 /* Return the next element from PATH_LIST, a colon separated list of
    paths.  PATH_INDEX_POINTER is the address of an index into PATH_LIST;
    the index is modified by this function.
@@ -422,8 +436,8 @@ make_full_pathname (const char *path, const char *name, int name_len)
   return (full_path);
 }
 
-/* From bash-3.2 */
-static void
+/* From bash-4.3 / shell.c / line 1659 */
+void
 get_current_user_info ()
 {
   struct passwd *entry;
@@ -431,7 +445,11 @@ get_current_user_info ()
   /* Don't fetch this more than once. */
   if (current_user.user_name == 0)
     {
+#if defined (__TANDEM)
+      entry = getpwnam (getlogin ());
+#else
       entry = getpwuid (current_user.uid);
+#endif
       if (entry)
         {
           current_user.user_name = savestring (entry->pw_name);

@@ -1,3 +1,11 @@
+Version 2.20 --> 2.21
+
+* Upgraded code from bash to version 4.3 (now uses eaccess).
+* Fixed a bug related to getgroups / sysconfig that caused Which not to see
+  more than 64 groups for a single user (thanks to Dmitry Bakshaev for finding
+  and analyzing this).
+* Build system maintenance.
+
 Version 2.19 --> 2.20
 
 * xmalloc.h included a readline header for no apparent reason. The compilation
@@ -19,7 +27,7 @@ Version 2.18 --> 2.19
   is now read from /etc/passwd or set to '/' if no home directory
   could be found (this now matches the tilde lib used in bash).
 * Fixed the function declaration given in README.alias
-* Added a @dircategory and @direntry to which.texinfo
+* Added a @dircategory and @direntry to which.texi
 * Changed the license to GPLv3.
 
 Version 2.17 --> 2.18

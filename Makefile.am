@@ -20,7 +20,7 @@ which_SOURCES = \
 	posixstat.h
 
 LDADD = $(top_builddir)/tilde/libtilde.a
-info_TEXINFOS = which.texinfo
+info_TEXINFOS = which.texi
 man_MANS = which.1
 
 # --------------- Maintainer's Section
@@ -35,4 +35,4 @@ MAINTAINERCLEANFILES=aclocal.m4 Makefile.in config.h.in stamp-h.in configure \
 	texinfo2man which.1 install-sh missing mkinstalldirs \
 	config.cache config.log depcomp compile config.status
 
-@MAINTAINER_MODE_TRUE@include $(srcdir)/maintMakefile
+@MAINTAINER_MODE_TRUE@include maintMakefile
