@@ -2,7 +2,8 @@
 
 perform_test () {
   (
-    cd /home/carlo/c/which
+    cd /home/carlo/c/which-objdir
+    mkdir -p test
     umask 022
     export PATH=".:~/bin:/bin:/usr/bin"
     export HOME=`(cd ~; pwd)`
@@ -51,7 +52,7 @@ perform_test () {
 	}
 	system($$0" 2>&1");
       }
-    }' test/commands > test/.testout;
+    }' /home/carlo/c/which/test/commands | sed -e 's/-objdir//g' > test/.testout;
     /usr/bin/sudo /bin/rm -f cat xxx alias.list;
   )
 }
@@ -59,7 +60,7 @@ perform_test () {
 case "$1" in
 check)
  perform_test;
- if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' .reference .testout ; then
+ if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' --ignore-matching-lines='uid=1000(carlo) gid=1000(carlo)' /home/carlo/c/which/test/.reference .testout ; then
    rm -f .testout;
    echo "Check successful!"
    exit 0;
@@ -71,7 +72,7 @@ check)
 generate)
   perform_test;
   cat .testout | sed -e 's%/home/carlo/c/which/which%which%g' > ../EXAMPLES;
-  mv .testout .reference;
+  mv .testout /home/carlo/c/which/test/.reference;
  exit 0;
  ;;
 *)
