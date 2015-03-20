@@ -129,7 +129,7 @@ release: dist cvslog html @PACKAGE@.lsm NEWS
 	echo "comment: release of @VERSION@" >> @PACKAGE@-@VERSION@.tar.gz.directive
 	gpg --clearsign @PACKAGE@-@VERSION@.tar.gz.directive
 	rm $(srcdir)/cvslog-@VERSION@*.html
-	cvs tag $(TAG)
+	(cd $(srcdir) && cvs tag $(TAG))
 	echo "$(TAG)" > $(srcdir)/.prevtag
 	date +%s > $(srcdir)/.release_second
 	@echo "*** To upload run: ncftpput ftp-upload.gnu.org /incoming/ftp @PACKAGE@-@VERSION@.tar.gz @PACKAGE@-@VERSION@.tar.gz.sig @PACKAGE@-@VERSION@.tar.gz.directive.asc"
