@@ -33,6 +33,6 @@ distclean-local:
 MAINTAINERCLEANFILES=aclocal.m4 Makefile.in config.h.in stamp-h.in configure \
         ChangeLog EXAMPLES which-2.spec index.html cvslog-*.html README \
 	texinfo2man which.1 install-sh missing mkinstalldirs \
-	config.cache config.log depcomp compile config.status
+	config.cache config.log depcomp compile config.status which.lsm
 
 @MAINTAINER_MODE_TRUE@include maintMakefile
