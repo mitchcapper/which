@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([which], [2.21])
+AC_INIT([which],[2.21])
 AC_CONFIG_SRCDIR(which.c)
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 AM_MAINTAINER_MODE
 
 dnl Because we use cwautomacros.
@@ -16,8 +16,8 @@ AC_ARG_ENABLE(iberty,
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_LANG_C
-AC_MINIX
+AC_LANG([C])
+AC_USE_SYSTEM_EXTENSIONS
 
 dnl Checks for libraries.
 if test "$which_cv_iberty" = yes ; then
@@ -25,7 +25,9 @@ if test "$which_cv_iberty" = yes ; then
 fi
 
 dnl Checks for header files.
-AC_HEADER_STDC
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_CHECK_HEADERS(unistd.h string.h libiberty.h)
 AC_HEADER_STAT
 
@@ -50,4 +52,5 @@ AC_CHECK_FUNCS(getpwent getpwnam getpwuid)
 BASH_CHECK_GETPW_FUNCS
 
 dnl Generate output files.
-AC_OUTPUT([Makefile maintMakefile tilde/Makefile])
+AC_CONFIG_FILES([Makefile maintMakefile tilde/Makefile])
+AC_OUTPUT
