@@ -36,3 +36,7 @@ stamp-h1
 install-sh
 missing
 mkinstalldirs
+*.a
+*.exe
+*.obj
+*.log
