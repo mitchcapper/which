@@ -43,7 +43,12 @@
 #  include <strings.h>
 #endif /* !HAVE_STRING_H */
 
+#ifndef _WIN32
 #include <pwd.h>
+#else
+#include <windows.h>
+#include <shlobj_core.h>
+#endif
 
 #if !defined (HAVE_GETPW_DECLS)
 extern struct passwd *getpwuid ();
@@ -59,6 +64,7 @@ get_env_value (varname)
 char *
 get_home_dir ()
 {
+#ifndef _WIN32
   char *home_dir;
   struct passwd *entry;
 
@@ -66,5 +72,13 @@ get_home_dir ()
   entry = getpwuid (getuid ());
   if (entry)
     home_dir = entry->pw_dir;
+#else
+	char *home_dir= xmalloc (sizeof (char) * (MAX_PATH));
+	if(! SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, home_dir))){
+		free(home_dir);
+		home_dir=NULL;
+	}
+
+#endif
   return (home_dir);
 }

@@ -21,8 +21,12 @@
 
 #include "sys.h"
 #include "posixstat.h"
+#if defined (HAVE_PWD_H)
 #include <pwd.h>
+#endif
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include "bash.h"
 
 /* Use the type that was determined by configure. */
@@ -81,6 +85,7 @@ struct user_info current_user =
 int
 uidget ()
 {
+#ifndef _WIN32
   uid_t u;
 
   u = getuid ();
@@ -99,6 +104,9 @@ uidget ()
   /* See whether or not we are running setuid or setgid. */
   return (current_user.uid != current_user.euid) ||
            (current_user.gid != current_user.egid);
+#else
+	return 2;
+#endif
 }
 
 /* From bash-4.3 / general.c / line 1018 */
@@ -287,8 +295,11 @@ file_status (char const* name)
   if (current_user.euid == (uid_t)0)
     {
       r |= FS_READABLE;
+
+#ifdef S_IXGRP
       if (finfo.st_mode & S_IXUGO)
 	r |= FS_EXECABLE;
+#endif
       return r;
     }
 
@@ -304,19 +315,27 @@ file_status (char const* name)
   /* If we are in the owning group, the group permissions apply. */
   else if (group_member (finfo.st_gid))
     {
+#ifdef S_IXGRP
       if (finfo.st_mode & S_IXGRP)
 	r |= FS_EXECABLE;
+#endif
+#ifdef S_IRGRP
       if (finfo.st_mode & S_IRGRP)
 	r |= FS_READABLE;
+#endif
     }
 
   /* Else we check whether `others' have permission to execute the file */
   else
     {
+#ifdef S_IXOTH
       if (finfo.st_mode & S_IXOTH)
 	r |= FS_EXECABLE;
+#endif
+#ifdef S_IROTH
       if (finfo.st_mode & S_IROTH)
 	r |= FS_READABLE;
+#endif
     }
 
   return r;
@@ -330,7 +349,7 @@ file_status (char const* name)
 int
 absolute_program (char const* string)
 {
-  return ((char *)strchr (string, '/') != (char *)NULL);
+	return IS_ABSOLUTE(string);
 }
 
 /* From bash-4.3 / stringlib.c / line 124 */
@@ -373,10 +392,10 @@ extract_colon_unit (char const* string, int* p_index)
      `:'.  If I is 0, then the path has a leading colon.  Trailing colons
      are handled OK by the `else' part of the if statement; an empty
      string is returned in that case. */
-  if (i && string[i] == ':')
+  if (i && string[i] == PATH_SEPARATOR)
     i++;
 
-  for (start = i; string[i] && string[i] != ':'; i++)
+  for (start = i; string[i] && string[i] != PATH_SEPARATOR; i++)
     ;
 
   *p_index = i;
@@ -385,7 +404,7 @@ extract_colon_unit (char const* string, int* p_index)
     {
       if (string[i])
         (*p_index)++;
-      /* Return "" in the case of a trailing `:'. */
+      /* Return "" in the case of a trailing PATH_SEPARATOR (`:' resp. ';'). */
       value = (char *)xmalloc (1);
       value[0] = '\0';
     }
@@ -431,11 +450,11 @@ make_full_pathname (const char *path, const char *name, int name_len)
   path_len = strlen (path);
   full_path = (char *) xmalloc (2 + path_len + name_len);
   strcpy (full_path, path);
-  full_path[path_len] = '/';
+  full_path[path_len] = DIR_SEPARATOR;
   strcpy (full_path + path_len + 1, name);
   return (full_path);
 }
-
+#ifndef _WIN32
 /* From bash-4.3 / shell.c / line 1659 */
 void
 get_current_user_info ()
@@ -468,13 +487,14 @@ get_current_user_info ()
       endpwent ();
     }
 }
+#endif
 
 /* This is present for use by the tilde library. */
 char* sh_get_env_value (const char* v)
 {
   return getenv(v);
 }
-
+#ifndef _WIN32
 char* sh_get_home_dir(void)
 {
   if (current_user.home_dir == NULL)
@@ -482,3 +502,12 @@ char* sh_get_home_dir(void)
   return current_user.home_dir;
 }
 
+#else
+char* sh_get_home_dir(void)
+{
+  return get_home_dir();
+}
+int geteuid(void){
+	return 2;
+}
+#endif

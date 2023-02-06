@@ -17,3 +17,4 @@ extern char *get_next_path_element(char const* path_list, int *path_index_pointe
 extern char *make_full_pathname(const char *path, const char *name, int name_len);
 extern int uidget();
 extern char* sh_get_home_dir(void);
+extern char* get_home_dir(void);

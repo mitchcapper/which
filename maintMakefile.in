@@ -67,6 +67,8 @@ AUTHOR=Carlo Wood <carlo@gnu.org>
 TAG:=${shell echo "V@VERSION@" | sed -e 's/\./_/g'}
 PREVTAG:=${shell test -f $(srcdir)/.prevtag && cat $(srcdir)/.prevtag}
 CVSREADACCESS:=${shell if test -f $(srcdir)/CVS/Entries; then echo "yes"; else echo "no"; fi}
+info_TEXINFOS = which.texi
+man_MANS = which.1
 
 test-values:
 	@echo "WWWDIR        = \"$(WWWDIR)\""
@@ -116,7 +118,7 @@ ChangeLog:
 	  touch ChangeLog; \
 	fi
 
-release: dist cvslog html @PACKAGE@.lsm NEWS
+release: dist cvslog html  which.1 @PACKAGE@.lsm NEWS
 	install -m 644 index.html $(WWWDIR)
 	install -m 644 @PACKAGE@.lsm $(WWWDIR)
 	install -m 644 `ls $(srcdir)/cvslog-@VERSION@*.html` $(WWWDIR)

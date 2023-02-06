@@ -20,12 +20,10 @@ which_SOURCES = \
 	posixstat.h
 
 LDADD = $(top_builddir)/tilde/libtilde.a
-info_TEXINFOS = which.texi
-man_MANS = which.1
 
 # --------------- Maintainer's Section
 
-dist-local: which README EXAMPLES which.1
+dist-local: which README EXAMPLES
 
 distclean-local:
 	rm -rf .deps autom4te-*.cache which-*.tar.gz

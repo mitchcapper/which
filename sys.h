@@ -34,6 +34,7 @@ char *strchr(), *strrchr();
 #else
 extern void *xmalloc(size_t);
 extern void *xrealloc(void *ptr, size_t size);
+#define XMALLOC_DEFINED 1
 #endif
 
 #ifndef NULL
@@ -51,3 +52,35 @@ extern void *xrealloc(void *ptr, size_t size);
 #   error "You either need getcwd(3) or getwd(3)"
 # endif
 #endif
+
+#ifdef _WIN32
+
+#define WIN32SYSTEM			1
+
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#define stat				_stati64
+#define getcwd				_getcwd
+#define strdup				_strdup
+#define isatty				_isatty
+#define strtok_r            strtok_s
+
+#define PATH_SEPARATOR		';'
+#define DIR_SEPARATOR		'\\'
+#define IS_SLASH(c)			((c) == '/' || (c) == DIR_SEPARATOR)
+#define SLASHES			"\\/"
+#define HAVE_DRIVE(n)		((n)[0] && (n)[1] == ':')
+#define IS_ABSOLUTE(n)        (IS_SLASH((n)[0]) || ((n)[0] && (n)[1] == ':'))
+#define DEFAULT_HOMEDIR		"C:\\"
+#else
+#define WIN32SYSTEM			0
+#define PATH_SEPARATOR		':'
+#define DIR_SEPARATOR		'/'
+#define IS_SLASH(c)			((c) == DIR_SEPARATOR)
+#define SLASHES			"/"
+#define HAVE_DRIVE(n)         (0)
+#define IS_ABSOLUTE(n)        ((n)[0] == DIR_SEPARATOR)
+#define DEFAULT_HOMEDIR		"/"
+#endif /* _WIN32  */
+#define IS_DIRSEP			IS_SLASH

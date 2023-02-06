@@ -48,6 +48,7 @@
 #endif
 
 #include "tilde.h"
+#include "../sys.h"
 
 #if defined (TEST) || defined (STATIC_MALLOC)
 static void *xmalloc (), *xrealloc ();
@@ -171,11 +172,7 @@ tilde_find_suffix (string)
 
   for (i = 0; i < string_len; i++)
     {
-#if defined (__MSDOS__)
-      if (string[i] == '/' || string[i] == '\\' /* || !string[i] */)
-#else
-      if (string[i] == '/' /* || !string[i] */)
-#endif
+      if (IS_DIRSEP(string[i]))
 	break;
 
       for (j = 0; suffixes && suffixes[j]; j++)
@@ -239,10 +236,10 @@ tilde_expand (string)
       free (tilde_word);
 
       len = strlen (expansion);
-#ifdef __CYGWIN__
+#if defined __CYGWIN__ || defined _WIN32
       /* Fix for Cygwin to prevent ~user/xxx from expanding to //xxx when
 	 $HOME for `user' is /.  On cygwin, // denotes a network drive. */
-      if (len > 1 || *expansion != '/' || *string != '/')
+      if (len > 1 || !IS_DIRSEP(*expansion) || IS_DIRSEP(*string))
 #endif
 	{
 	  if ((result_index + len + 1) > result_size)
@@ -271,11 +268,7 @@ isolate_tilde_prefix (fname, lenp)
   int i;
 
   ret = (char *)xmalloc (strlen (fname));
-#if defined (__MSDOS__)
-  for (i = 1; fname[i] && fname[i] != '/' && fname[i] != '\\'; i++)
-#else
-  for (i = 1; fname[i] && fname[i] != '/'; i++)
-#endif
+  for (i = 1; fname[i] && !IS_DIRSEP(fname[i]); i++)
     ret[i - 1] = fname[i];
   ret[i - 1] = '\0';
   if (lenp)
@@ -356,7 +349,7 @@ tilde_expand_word (filename)
   /* A leading `~/' or a bare `~' is *always* translated to the value of
      $HOME or the home directory of the current user, regardless of any
      preexpansion hook. */
-  if (filename[1] == '\0' || filename[1] == '/')
+  if (filename[1] == '\0' || IS_DIRSEP(filename[1]))
     {
       /* Prefix $HOME to the rest of the string. */
       expansion = sh_get_env_value ("HOME");

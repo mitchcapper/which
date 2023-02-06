@@ -22,6 +22,17 @@
 #include "getopt.h"
 #include "tilde/tilde.h"
 #include "bash.h"
+#include <ctype.h>
+#include <limits.h>
+
+#ifdef _WIN32
+# include <errno.h>
+# define DEFAULT_PATHEXT ".com;.exe;.bat;.cmd"
+# define LEN_DEFAULT_PATHEXT sizeof (DEFAULT_PATHEXT)
+# define PATHEXTSEPARATORS ";"
+# include <windows.h>
+# define PATH_MAX		MAX_PATH
+#endif /* WIN32 */
 
 static const char *progname;
 
@@ -63,7 +74,7 @@ static void print_fail(const char *name, const char *path_list)
   fprintf(stderr, "%s: no %s in (%s)\n", progname, name, path_list);
 }
 
-static char home[256];
+static char home[PATH_MAX];
 static size_t homelen = 0;
 
 static int absolute_path_given;
@@ -91,10 +102,11 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
     if (abs_path)
       free(abs_path);
 
-    if (*name != '.' && *name != '/' && *name != '~')
+    if (*name != '.' && !IS_ABSOLUTE(name) && *name != '~')
     {
       abs_path = (char *)xmalloc(3 + name_len);
       strcpy(abs_path, "./");
+	 abs_path[1] = DIR_SEPARATOR;
       strcat(abs_path, name);
     }
     else
@@ -104,7 +116,7 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
     }
 
     path_list = abs_path;
-    p = strrchr(abs_path, '/');
+    p = strrchr(abs_path, DIR_SEPARATOR);
     *p++ = 0;
     name = p;
   }
@@ -112,7 +124,6 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
   while (path_list && path_list[*path_index])
   {
     char *path;
-
     if (absolute_path_given)
     {
       path = savestring(path_list);
@@ -137,32 +148,64 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
       }
     }
 
-    if (skip_dot && *path != '/')
+    if (skip_dot && !IS_ABSOLUTE(path))
     {
       free(path);
       continue;
     }
 
     found_path_starts_with_dot = (*path == '.');
-
     full_path = make_full_pathname(path, name, name_len);
-    free(path);
 
     status = file_status(full_path);
-
     if ((status & FS_EXISTS) && (status & FS_EXECABLE))
     {
       found = full_path;
       break;
     }
 
+/* On MS-Windows also search for program name with executable extensions added */
+#ifdef _WIN32
+if (!found && !strrchr (name, '.')) {
+	LPTSTR PathExtStr, ext;
+	char *namex, *lasts;
+	int ext_len;
+
+	PathExtStr = strdup (getenv ("PATHEXT"));
+	if (!PathExtStr)
+		PathExtStr = strdup (DEFAULT_PATHEXT);
+	ext = strtok_r (PathExtStr, PATHEXTSEPARATORS, &lasts);
+	while (ext) {
+		free (full_path);
+		ext_len = strlen (ext);
+		namex = (char *) xmalloc (name_len + ext_len + 1);
+		if (!namex)
+			continue;
+		strcpy (namex, name);
+		strcat (namex, ext);
+	    full_path = make_full_pathname (path, namex, name_len + ext_len);
+		free (namex);
+		status = file_status (full_path);
+	     if ((status & FS_EXISTS) && (status & FS_EXECABLE)) {
+			found = full_path;
+			break;
+	    }
+		ext = strtok_r (NULL, PATHEXTSEPARATORS, &lasts);
+	}
+	if (PathExtStr)
+		free (PathExtStr);
+}
+#endif
+    free(path);
+	if (found)
+		break;
     free(full_path);
   }
 
   return (found);
 }
 
-static char cwd[256];
+static char cwd[PATH_MAX+1];
 static size_t cwdlen;
 
 static void get_current_working_directory(void)
@@ -177,7 +220,7 @@ static void get_current_working_directory(void)
       strcpy(cwd, pwd);
   }
 
-  if (*cwd != '/')
+  if (!IS_ABSOLUTE (cwd))
   {
     fprintf(stderr, "Can't get current working directory\n");
     exit(-1);
@@ -185,23 +228,23 @@ static void get_current_working_directory(void)
 
   cwdlen = strlen(cwd);
 
-  if (cwd[cwdlen - 1] != '/')
+  if (!IS_DIRSEP(cwd[cwdlen - 1]))
   {
-    cwd[cwdlen++] = '/';
+    cwd[cwdlen++] = DIR_SEPARATOR;
     cwd[cwdlen] = 0;
   }
 }
 
 static char *path_clean_up(const char *path)
 {
-  static char result[256];
+  static char result[PATH_MAX];
 
   const char *p1 = path;
   char *p2 = result;
 
   int saw_slash = 0, saw_slash_dot = 0, saw_slash_dot_dot = 0;
 
-  if (*p1 != '/')
+  if (!IS_ABSOLUTE (p1))
   {
     get_current_working_directory();
     strcpy(result, cwd);
@@ -215,11 +258,11 @@ static char *path_clean_up(const char *path)
      * Two leading slashes are allowed, having an OS implementation-defined meaning.
      * See http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap04.html#tag_04_11
      */
-    if (!saw_slash || *p1 != '/' || (p1 == path + 1 && p1[1] != '/'))
+    if (!saw_slash || !IS_DIRSEP (*p1) || (p1 == path + 1 && !IS_DIRSEP (p1[1])))
       *p2++ = *p1;
-    if (saw_slash_dot && (*p1 == '/'))
+    if (saw_slash_dot && (IS_DIRSEP (*p1)))
       p2 -= 2;
-    if (saw_slash_dot_dot && (*p1 == '/'))
+    if (saw_slash_dot_dot && (IS_DIRSEP (*p1)))
     {
       int cnt = 0;
       do
@@ -229,7 +272,7 @@ static char *path_clean_up(const char *path)
 	  strcpy(result, path);
 	  return result;
 	}
-	if (*p2 == '/')
+	if (!IS_DIRSEP (*p2))
 	  ++cnt;
       }
       while (cnt != 3);
@@ -237,7 +280,7 @@ static char *path_clean_up(const char *path)
     }
     saw_slash_dot_dot = saw_slash_dot && (*p1 == '.');
     saw_slash_dot = saw_slash && (*p1 == '.');
-    saw_slash = (*p1 == '/');
+    saw_slash = (IS_DIRSEP (*p1));
   }
   while (*p1++);
 
@@ -264,7 +307,7 @@ int func_search(int indent, const char *cmd, struct function_st *func_list, int 
   int i;
   for (i = 0; i < func_count; ++i)
   {
-    if (!strcmp(functions[i].name, cmd))
+    if (!stricmp(functions[i].name, cmd))
     {
       int j;
       if (indent)
@@ -301,13 +344,13 @@ int path_search(int indent, const char *cmd, const char *path_list)
       if (result)
       {
 	const char *full_path = path_clean_up(result);
-	int in_home = (show_tilde || skip_tilde) && !strncmp(full_path, home, homelen);
+	int in_home = (show_tilde || skip_tilde) && !strnicmp(full_path, home, homelen);
 	if (indent)
 	  fprintf(stdout, "\t");
-	if (!(skip_tilde && in_home) && show_dot && found_path_starts_with_dot && !strncmp(full_path, cwd, cwdlen))
+	if (!(skip_tilde && in_home) && show_dot && found_path_starts_with_dot && !strnicmp(full_path, cwd, cwdlen))
 	{
 	  full_path += cwdlen;
-	  fprintf(stdout, "./");
+	  fprintf(stdout, ".%c", DIR_SEPARATOR);
 	}
 	else if (in_home)
 	{
@@ -320,7 +363,7 @@ int path_search(int indent, const char *cmd, const char *path_list)
 	  if (show_tilde)
 	  {
 	    full_path += homelen;
-	    fprintf(stdout, "~/");
+	    fprintf(stdout, "~%c", DIR_SEPARATOR);
 	  }
 	}
 	fprintf(stdout, "%s\n", full_path);
@@ -343,7 +386,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
 
   while(*p == ' ' || *p == '\t')
     ++p;
-  if (!strncmp("alias", p, 5))
+  if (!strnicmp("alias", p, 5))
     p += 5;
   while(*p == ' ' || *p == '\t')
     ++p;
@@ -355,7 +398,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
     char q = 0;
     char *cmd;
 
-    if (!*argv || len != strlen(*argv) || strncmp(*argv, &p[-len], len))
+    if (!*argv || len != strlen(*argv) || strnicmp(*argv, &p[-len], len))
       continue;
 
     fputs(str, stdout);
@@ -385,9 +428,9 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
       cmd = (char *)xmalloc(len + 1);
       strncpy(cmd, &p[-len], len);
       cmd[len] = 0;
-      if (*argv && !strcmp(cmd, *argv))
+      if (*argv && !stricmp(cmd, *argv))
         *argv = NULL;
-      if (read_functions && !strchr(cmd, '/'))
+      if (read_functions && !strchr(cmd, DIR_SEPARATOR))
         found = func_search(1, cmd, functions, function_start_type);
       if (show_all || !found)
 	path_search(1, cmd, path_list);
@@ -428,7 +471,7 @@ static uid_t const superuser = 0;
 
 int main(int argc, char *argv[])
 {
-  const char *path_list = getenv("PATH");
+  char *path_list = getenv("PATH");
   int short_option, fail_count = 0;
   static int long_option;
   struct option longopts[] = {
@@ -448,6 +491,16 @@ int main(int argc, char *argv[])
   };
 
   progname = argv[0];
+#ifdef _WIN32
+	path_list = (char *) malloc (2 + strlen (path_list) + 1);
+	path_list[0] = '.';
+	path_list[1] = PATH_SEPARATOR;
+	path_list[2] = '\0';
+	strcat (path_list, getenv ("PATH"));
+	/* omit final ';' */
+	if (path_list [strlen (path_list) - 1] == PATH_SEPARATOR)
+		path_list [strlen (path_list) - 1] = '\0';
+#endif /* _WIN32 */
   while ((short_option = getopt_long(argc, argv, "aivV", longopts, NULL)) != -1)
   {
     switch (short_option)
@@ -515,9 +568,10 @@ int main(int argc, char *argv[])
     strncpy(home, h, sizeof(home));
     home[sizeof(home) - 1] = 0;
     homelen = strlen(home);
-    if (home[homelen - 1] != '/' && homelen < sizeof(home) - 1)
+    if (!IS_DIRSEP (home[homelen - 1]) && homelen < sizeof(home) - 1)
     {
-      strcat(home, "/");
+      home[homelen] = DIR_SEPARATOR;
+      home[homelen + 1] = '\0';
       ++homelen;
     }
   }
@@ -572,7 +626,7 @@ int main(int argc, char *argv[])
 	if (*p == ')' && p[-1] == '(' && p[-2] == ' ')
 	{
 	  looks_like_function_start = 1;
-	  function_start_has_declare = (strncmp("declare -", buf, 9) == 0);
+	  function_start_has_declare = (strnicmp("declare -", buf, 9) == 0);
 	}
 	// Add some zsh support here.
 	// zsh does output a pattern for `str' like
@@ -590,7 +644,7 @@ int main(int argc, char *argv[])
       if (processing_aliases && !looks_like_function_start)
       {
 	// bash version 2.0.5b can throw in lines like "declare -fx FUNCTION_NAME", eat them.
-	if (!strncmp("declare -", buf, 9))
+	if (!strnicmp("declare -", buf, 9))
 	  continue;
 	if (alias_count == max_alias_count)
 	{
@@ -636,7 +690,7 @@ int main(int argc, char *argv[])
 	{
 	  size_t blen = strlen(buf);
 	  function->lines[function->line_count++] = strcpy((char *)xmalloc(blen + 1), buf);
-	  if (!strcmp(buf, "}\n"))
+	  if (!stricmp(buf, "}\n"))
 	    break;
           if (function->line_count == max_line_count)
 	  {
@@ -661,16 +715,19 @@ int main(int argc, char *argv[])
     if (!*argv)
       continue;
 
-    if (read_functions && !strchr(*argv, '/'))
+    if (read_functions && !strchr(*argv, DIR_SEPARATOR))
       found_something = func_search(0, *argv, functions, function_start_type);
 
     if ((show_all || !found_something) && !path_search(0, *argv, path_list) && !found_something)
     {
-      print_fail(absolute_path_given ? strrchr(*argv, '/') + 1 : *argv, absolute_path_given ? abs_path : path_list);
+      print_fail(absolute_path_given ? strrchr(*argv, DIR_SEPARATOR) + 1 : *argv, absolute_path_given ? abs_path : path_list);
       ++fail_count;
     }
   }
-
+#ifdef _WIN32
+  if (path_list)
+	free (path_list);
+#endif
   return fail_count;
 }
 
