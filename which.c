@@ -27,7 +27,7 @@
 
 #ifdef _WIN32
 # include <errno.h>
-# define DEFAULT_PATHEXT ".com;.exe;.bat;.cmd"
+# define DEFAULT_PATHEXT ".exe;.ps1;.bat;.cmd;.com;"
 # define LEN_DEFAULT_PATHEXT sizeof (DEFAULT_PATHEXT)
 # define PATHEXTSEPARATORS ";"
 # include <windows.h>
