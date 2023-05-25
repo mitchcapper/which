@@ -20,6 +20,8 @@ The --read-alias idea has been copied from a version of which by
 Maarten Litmaath called `which-v6', he was using `-i' as option
 which stands for `interactive'.
 
+2.4 added better windows support.
+
 Manual page
 ===========
 

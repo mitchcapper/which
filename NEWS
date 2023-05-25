@@ -1,3 +1,8 @@
+Version 2.21 --> 2.40
+
+* Windows support improved
+
+
 Version 2.20 --> 2.21
 
 * Upgraded code from bash to version 4.3 (now uses eaccess).
