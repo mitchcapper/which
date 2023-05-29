@@ -31,7 +31,7 @@
 # define LEN_DEFAULT_PATHEXT sizeof (DEFAULT_PATHEXT)
 # define PATHEXTSEPARATORS ";"
 # include <windows.h>
-# define PATH_MAX		MAX_PATH
+# define PATH_MAX    MAX_PATH
 #endif /* WIN32 */
 
 static const char *progname;
@@ -106,7 +106,7 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
     {
       abs_path = (char *)xmalloc(3 + name_len);
       strcpy(abs_path, "./");
-	 abs_path[1] = DIR_SEPARATOR;
+   abs_path[1] = DIR_SEPARATOR;
       strcat(abs_path, name);
     }
     else
@@ -143,8 +143,8 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
 
       if (skip_tilde)
       {
-	free(path);
-	continue;
+        free(path);
+        continue;
       }
     }
 
@@ -167,39 +167,39 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
 
 /* On MS-Windows also search for program name with executable extensions added */
 #ifdef _WIN32
-if (!found && !strrchr (name, '.')) {
-	LPTSTR PathExtStr, ext;
-	char *namex, *lasts;
-	int ext_len;
+    if (!found && !strrchr (name, '.')) {
+      LPTSTR PathExtStr, ext;
+      char *namex, *lasts;
+      int ext_len;
 
-	PathExtStr = strdup (getenv ("PATHEXT"));
-	if (!PathExtStr)
-		PathExtStr = strdup (DEFAULT_PATHEXT);
-	ext = strtok_r (PathExtStr, PATHEXTSEPARATORS, &lasts);
-	while (ext) {
-		free (full_path);
-		ext_len = strlen (ext);
-		namex = (char *) xmalloc (name_len + ext_len + 1);
-		if (!namex)
-			continue;
-		strcpy (namex, name);
-		strcat (namex, ext);
-	    full_path = make_full_pathname (path, namex, name_len + ext_len);
-		free (namex);
-		status = file_status (full_path);
-	     if ((status & FS_EXISTS) && (status & FS_EXECABLE)) {
-			found = full_path;
-			break;
-	    }
-		ext = strtok_r (NULL, PATHEXTSEPARATORS, &lasts);
-	}
-	if (PathExtStr)
-		free (PathExtStr);
-}
+      PathExtStr = strdup (getenv ("PATHEXT"));
+      if (!PathExtStr)
+        PathExtStr = strdup (DEFAULT_PATHEXT);
+      ext = strtok_r (PathExtStr, PATHEXTSEPARATORS, &lasts);
+      while (ext) {
+        free (full_path);
+        ext_len = strlen (ext);
+        namex = (char *) xmalloc (name_len + ext_len + 1);
+        if (!namex)
+          continue;
+        strcpy (namex, name);
+        strcat (namex, ext);
+          full_path = make_full_pathname (path, namex, name_len + ext_len);
+        free (namex);
+        status = file_status (full_path);
+        if ((status & FS_EXISTS) && (status & FS_EXECABLE)) {
+          found = full_path;
+          break;
+        }
+        ext = strtok_r (NULL, PATHEXTSEPARATORS, &lasts);
+      }
+      if (PathExtStr)
+        free (PathExtStr);
+    }
 #endif
     free(path);
-	if (found)
-		break;
+    if (found)
+      break;
     free(full_path);
   }
 
@@ -268,13 +268,13 @@ static char *path_clean_up(const char *path)
       int cnt = 0;
       do
       {
-	if (--p2 < result)
-	{
-	  strcpy(result, path);
-	  return result;
-	}
-	if (!IS_DIRSEP (*p2))
-	  ++cnt;
+  if (--p2 < result)
+  {
+    strcpy(result, path);
+    return result;
+  }
+  if (!IS_DIRSEP (*p2))
+    ++cnt;
       }
       while (cnt != 3);
       ++p2;
@@ -314,13 +314,13 @@ int func_search(int indent, const char *cmd, struct function_st *func_list, int 
       if (indent)
         fputc('\t', stdout);
       if (function_start_type == 1)
-	fprintf(stdout, "%s () {\n", cmd);
+  fprintf(stdout, "%s () {\n", cmd);
       else
-	fprintf(stdout, "%s ()\n", cmd);
+  fprintf(stdout, "%s ()\n", cmd);
       for (j = 0; j < functions[i].line_count; ++j)
       {
-	if (indent)
-	  fputc('\t', stdout);
+  if (indent)
+    fputc('\t', stdout);
         fputs(functions[i].lines[j], stdout);
       }
       return 1;
@@ -344,35 +344,35 @@ int path_search(int indent, const char *cmd, const char *path_list)
       result = find_command_in_path(cmd, path_list, &path_index);
       if (result)
       {
-	const char *full_path = path_clean_up(result);
+    const char *full_path = path_clean_up(result);
     int in_home = (show_tilde || skip_tilde) && !STRNCMP(full_path, home, homelen);
-	if (indent)
-	  fprintf(stdout, "\t");
+    if (indent)
+      fprintf(stdout, "\t");
     if (!(skip_tilde && in_home) && show_dot && found_path_starts_with_dot && !STRNCMP(full_path, cwd, cwdlen))
-	{
-	  full_path += cwdlen;
-	  fprintf(stdout, ".%c", DIR_SEPARATOR);
-	}
-	else if (in_home)
-	{
-	  if (skip_tilde)
-	  {
-	    next = 1;
-	    free(result);
-	    continue;
-	  }
-	  if (show_tilde)
-	  {
-	    full_path += homelen;
-	    fprintf(stdout, "~%c", DIR_SEPARATOR);
-	  }
-	}
-	fprintf(stdout, "%s\n", full_path);
-	free(result);
-	found_something = 1;
+    {
+      full_path += cwdlen;
+      fprintf(stdout, ".%c", DIR_SEPARATOR);
+    }
+    else if (in_home)
+    {
+      if (skip_tilde)
+      {
+      next = 1;
+      free(result);
+      continue;
+      }
+      if (show_tilde)
+      {
+      full_path += homelen;
+      fprintf(stdout, "~%c", DIR_SEPARATOR);
+      }
+    }
+    fprintf(stdout, "%s\n", full_path);
+    free(result);
+    found_something = 1;
       }
       else
-	break;
+    break;
     }
     while (next);
   }
@@ -421,10 +421,10 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
       int found = 0;
 
       while(*p == ' ' || *p == '\t')
-	++p;
+  ++p;
       len = 0;
       while(*p && *p != ' ' && *p != '\t' && *p != q && *p != '|' && *p != '&')
-	++p, ++len;
+  ++p, ++len;
 
       cmd = (char *)xmalloc(len + 1);
       strncpy(cmd, &p[-len], len);
@@ -434,7 +434,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
       if (read_functions && !strchr(cmd, DIR_SEPARATOR))
         found = func_search(1, cmd, functions, function_start_type);
       if (show_all || !found)
-	path_search(1, cmd, path_list);
+    path_search(1, cmd, path_list);
       free(cmd);
 
       while(*p && (*p != '|' || p[1] == '|') && (*p != '&' || p[1] == '&'))
@@ -493,64 +493,64 @@ int main(int argc, char *argv[])
 
   progname = argv[0];
 #ifdef _WIN32
-	path_list = (char *) malloc (2 + strlen (path_list) + 1);
-	path_list[0] = '.';
-	path_list[1] = PATH_SEPARATOR;
-	path_list[2] = '\0';
-	strcat (path_list, getenv ("PATH"));
-	/* omit final ';' */
-	if (path_list [strlen (path_list) - 1] == PATH_SEPARATOR)
-		path_list [strlen (path_list) - 1] = '\0';
+  path_list = (char *) malloc (2 + strlen (path_list) + 1);
+  path_list[0] = '.';
+  path_list[1] = PATH_SEPARATOR;
+  path_list[2] = '\0';
+  strcat (path_list, getenv ("PATH"));
+  /* omit final ';' */
+  if (path_list [strlen (path_list) - 1] == PATH_SEPARATOR)
+    path_list [strlen (path_list) - 1] = '\0';
 #endif /* _WIN32 */
   while ((short_option = getopt_long(argc, argv, "aivV", longopts, NULL)) != -1)
   {
     switch (short_option)
     {
       case 0:
-	switch (long_option)
-	{
-	  case opt_help:
-	    print_usage(stdout);
-	    return 0;
-	  case opt_version:
-	    print_version();
-	    return 0;
-	  case opt_skip_dot:
-	    skip_dot = !tty_only;
-	    break;
-	  case opt_skip_tilde:
-	    skip_tilde = !tty_only;
-	    break;
-	  case opt_skip_alias:
-	    skip_alias = 1;
-	    break;
-	  case opt_show_dot:
-	    show_dot = !tty_only;
-	    break;
-	  case opt_show_tilde:
-	    show_tilde = (!tty_only && geteuid() != superuser);
-	    break;
-	  case opt_tty_only:
-	    tty_only = !isatty(1);
-	    break;
-	  case opt_read_functions:
-	    read_functions = 1;
-	    break;
-	  case opt_skip_functions:
-	    skip_functions = 1;
-	    break;
-	}
-	break;
+  switch (long_option)
+  {
+    case opt_help:
+      print_usage(stdout);
+      return 0;
+    case opt_version:
+      print_version();
+      return 0;
+    case opt_skip_dot:
+      skip_dot = !tty_only;
+      break;
+    case opt_skip_tilde:
+      skip_tilde = !tty_only;
+      break;
+    case opt_skip_alias:
+      skip_alias = 1;
+      break;
+    case opt_show_dot:
+      show_dot = !tty_only;
+      break;
+    case opt_show_tilde:
+      show_tilde = (!tty_only && geteuid() != superuser);
+      break;
+    case opt_tty_only:
+      tty_only = !isatty(1);
+      break;
+    case opt_read_functions:
+      read_functions = 1;
+      break;
+    case opt_skip_functions:
+      skip_functions = 1;
+      break;
+  }
+  break;
       case 'a':
-	show_all = 1;
-	break;
+  show_all = 1;
+  break;
       case 'i':
         read_alias = 1;
-	break;
+  break;
       case 'v':
       case 'V':
-	print_version();
-	return 0;
+  print_version();
+  return 0;
     }
   }
 
@@ -610,102 +610,102 @@ int main(int argc, char *argv[])
       int function_start_has_declare;
       if (read_functions)
       {
-	// bash version 2.0.5a and older output a pattern for `str' like
-	// declare -fx FUNCTION_NAME ()
-	// {
-	//   body
-	// }
-	//
-	// bash version 2.0.5b and later output a pattern for `str' like
-	// FUNCTION_NAME ()
-	// {
-	//   body
-	// }
-	char *p = buf + strlen(buf) - 1;
-	while (isspace(*p) && p > buf + 2)
-	  --p;
-	if (*p == ')' && p[-1] == '(' && p[-2] == ' ')
-	{
-	  looks_like_function_start = 1;
+  // bash version 2.0.5a and older output a pattern for `str' like
+  // declare -fx FUNCTION_NAME ()
+  // {
+  //   body
+  // }
+  //
+  // bash version 2.0.5b and later output a pattern for `str' like
+  // FUNCTION_NAME ()
+  // {
+  //   body
+  // }
+  char *p = buf + strlen(buf) - 1;
+  while (isspace(*p) && p > buf + 2)
+    --p;
+  if (*p == ')' && p[-1] == '(' && p[-2] == ' ')
+  {
+    looks_like_function_start = 1;
     function_start_has_declare = (STRNCMP("declare -", buf, 9) == 0);
-	}
-	// Add some zsh support here.
-	// zsh does output a pattern for `str' like
-	// FUNCTION () {
-	//   body
-	// }
-	if (p > buf + 4 && *p == '{' && p[-1] == ' ' &&
-	    p[-2] == ')' && p[-3] == '(' && p[-4] == ' ')
-	{
-	  looks_like_function_start = 1;
-	  function_start_type = 1;
-	  function_start_has_declare = 0;
-	}
+  }
+  // Add some zsh support here.
+  // zsh does output a pattern for `str' like
+  // FUNCTION () {
+  //   body
+  // }
+  if (p > buf + 4 && *p == '{' && p[-1] == ' ' &&
+      p[-2] == ')' && p[-3] == '(' && p[-4] == ' ')
+  {
+    looks_like_function_start = 1;
+    function_start_type = 1;
+    function_start_has_declare = 0;
+  }
       }
       if (processing_aliases && !looks_like_function_start)
       {
-	// bash version 2.0.5b can throw in lines like "declare -fx FUNCTION_NAME", eat them.
+  // bash version 2.0.5b can throw in lines like "declare -fx FUNCTION_NAME", eat them.
   if (!STRNCMP("declare -", buf, 9))
-	  continue;
-	if (alias_count == max_alias_count)
-	{
-	  max_alias_count += 32;
-	  aliases = (char **)xrealloc(aliases, max_alias_count * sizeof(char *));
-	}
-	aliases[alias_count++] = strcpy((char *)xmalloc(strlen(buf) + 1), buf);
+    continue;
+  if (alias_count == max_alias_count)
+  {
+    max_alias_count += 32;
+    aliases = (char **)xrealloc(aliases, max_alias_count * sizeof(char *));
+  }
+  aliases[alias_count++] = strcpy((char *)xmalloc(strlen(buf) + 1), buf);
       }
       else if (read_functions && looks_like_function_start)
       {
         struct function_st *function;
         int max_line_count;
 
-	const char *p = buf;
-	int len = 0;
+  const char *p = buf;
+  int len = 0;
 
         processing_aliases = 0;
 
-	// Eat "declare -fx " at start of bash version 2.0.5a and older, if present.
-	if (function_start_has_declare)
-	{
-	  p += 9;
-	  while(*p && *p++ != ' ');
-	}
+  // Eat "declare -fx " at start of bash version 2.0.5a and older, if present.
+  if (function_start_has_declare)
+  {
+    p += 9;
+    while(*p && *p++ != ' ');
+  }
 
-	while(*p && *p != ' ')
-	  ++p, ++len;
+  while(*p && *p != ' ')
+    ++p, ++len;
 
-	if (func_count == max_func_count)
-	{
-	  max_func_count += 16;
-	  functions = (struct function_st *)xrealloc(functions, max_func_count * sizeof(struct function_st));
-	}
-	function = &functions[func_count++];
-	function->name = (char *)xmalloc(len + 1);
-	strncpy(function->name, &p[-len], len);
-	function->name[len] = 0;
-	function->len = len;
-	max_line_count = 32;
-	function->lines = (char **)xmalloc(max_line_count * sizeof(char *));
-	function->line_count = 0;
-	while (fgets(buf, sizeof(buf), stdin))
-	{
-	  size_t blen = strlen(buf);
-	  function->lines[function->line_count++] = strcpy((char *)xmalloc(blen + 1), buf);
+  if (func_count == max_func_count)
+  {
+    max_func_count += 16;
+    functions = (struct function_st *)xrealloc(functions, max_func_count * sizeof(struct function_st));
+  }
+  function = &functions[func_count++];
+  function->name = (char *)xmalloc(len + 1);
+  strncpy(function->name, &p[-len], len);
+  function->name[len] = 0;
+  function->len = len;
+  max_line_count = 32;
+  function->lines = (char **)xmalloc(max_line_count * sizeof(char *));
+  function->line_count = 0;
+  while (fgets(buf, sizeof(buf), stdin))
+  {
+    size_t blen = strlen(buf);
+    function->lines[function->line_count++] = strcpy((char *)xmalloc(blen + 1), buf);
 	  if (!strcmp(buf, "}\n"))
-	    break;
+      break;
           if (function->line_count == max_line_count)
-	  {
-	    max_line_count += 32;
-	    function->lines = (char **)xrealloc(function->lines, max_line_count * sizeof(char *));
-	  }
-	}
+    {
+      max_line_count += 32;
+      function->lines = (char **)xrealloc(function->lines, max_line_count * sizeof(char *));
+    }
+  }
       }
     }
     if (read_alias)
     {
       int i;
       for (i = 0; i < alias_count; ++i)
-	process_alias(aliases[i], argc, argv, path_list, function_start_type);
+  process_alias(aliases[i], argc, argv, path_list, function_start_type);
     }
   }
 
@@ -727,7 +727,7 @@ int main(int argc, char *argv[])
   }
 #ifdef _WIN32
   if (path_list)
-	free (path_list);
+  free (path_list);
 #endif
   return fail_count;
 }
