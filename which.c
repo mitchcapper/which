@@ -308,7 +308,7 @@ int func_search(int indent, const char *cmd, struct function_st *func_list, int 
   int i;
   for (i = 0; i < func_count; ++i)
   {
-    if (!stricmp(functions[i].name, cmd))
+    if (!STRCMP(functions[i].name, cmd))
     {
       int j;
       if (indent)
@@ -345,10 +345,10 @@ int path_search(int indent, const char *cmd, const char *path_list)
       if (result)
       {
 	const char *full_path = path_clean_up(result);
-	int in_home = (show_tilde || skip_tilde) && !strnicmp(full_path, home, homelen);
+    int in_home = (show_tilde || skip_tilde) && !STRNCMP(full_path, home, homelen);
 	if (indent)
 	  fprintf(stdout, "\t");
-	if (!(skip_tilde && in_home) && show_dot && found_path_starts_with_dot && !strnicmp(full_path, cwd, cwdlen))
+    if (!(skip_tilde && in_home) && show_dot && found_path_starts_with_dot && !STRNCMP(full_path, cwd, cwdlen))
 	{
 	  full_path += cwdlen;
 	  fprintf(stdout, ".%c", DIR_SEPARATOR);
@@ -387,7 +387,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
 
   while(*p == ' ' || *p == '\t')
     ++p;
-  if (!strnicmp("alias", p, 5))
+  if (!STRNCMP("alias", p, 5))
     p += 5;
   while(*p == ' ' || *p == '\t')
     ++p;
@@ -399,7 +399,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
     char q = 0;
     char *cmd;
 
-    if (!*argv || len != strlen(*argv) || strnicmp(*argv, &p[-len], len))
+    if (!*argv || len != strlen(*argv) || STRNCMP(*argv, &p[-len], len))
       continue;
 
     fputs(str, stdout);
@@ -429,7 +429,7 @@ void process_alias(const char *str, int argc, char *argv[], const char *path_lis
       cmd = (char *)xmalloc(len + 1);
       strncpy(cmd, &p[-len], len);
       cmd[len] = 0;
-      if (*argv && !stricmp(cmd, *argv))
+      if (*argv && !STRCMP(cmd, *argv))
         *argv = NULL;
       if (read_functions && !strchr(cmd, DIR_SEPARATOR))
         found = func_search(1, cmd, functions, function_start_type);
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
 	if (*p == ')' && p[-1] == '(' && p[-2] == ' ')
 	{
 	  looks_like_function_start = 1;
-	  function_start_has_declare = (strnicmp("declare -", buf, 9) == 0);
+    function_start_has_declare = (STRNCMP("declare -", buf, 9) == 0);
 	}
 	// Add some zsh support here.
 	// zsh does output a pattern for `str' like
@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
       if (processing_aliases && !looks_like_function_start)
       {
 	// bash version 2.0.5b can throw in lines like "declare -fx FUNCTION_NAME", eat them.
-	if (!strnicmp("declare -", buf, 9))
+  if (!STRNCMP("declare -", buf, 9))
 	  continue;
 	if (alias_count == max_alias_count)
 	{
@@ -691,7 +691,7 @@ int main(int argc, char *argv[])
 	{
 	  size_t blen = strlen(buf);
 	  function->lines[function->line_count++] = strcpy((char *)xmalloc(blen + 1), buf);
-	  if (!stricmp(buf, "}\n"))
+	  if (!strcmp(buf, "}\n"))
 	    break;
           if (function->line_count == max_line_count)
 	  {

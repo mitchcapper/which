@@ -59,6 +59,7 @@ extern void *xrealloc(void *ptr, size_t size);
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <ctype.h>
 
 #define stat				_stati64
 #define getcwd				_getcwd
@@ -73,6 +74,10 @@ extern void *xrealloc(void *ptr, size_t size);
 #define HAVE_DRIVE(n)		((n)[0] && (n)[1] == ':')
 #define IS_ABSOLUTE(n)        (IS_SLASH((n)[0]) || ((n)[0] && (n)[1] == ':'))
 #define DEFAULT_HOMEDIR		"C:\\"
+#define STRSTR stristr
+#define STRCMP stricmp
+#define STRNCMP strnicmp
+#define CHAR_CMP(c1, c2) ( tolower(c1) == tolower(c2) )
 #else
 #define WIN32SYSTEM			0
 #define PATH_SEPARATOR		':'
@@ -82,5 +87,9 @@ extern void *xrealloc(void *ptr, size_t size);
 #define HAVE_DRIVE(n)         (0)
 #define IS_ABSOLUTE(n)        ((n)[0] == DIR_SEPARATOR)
 #define DEFAULT_HOMEDIR		"/"
+#define STRSTR strstr
+#define STRCMP strcmp
+#define STRNCMP strncmp
+#define CHAR_CMP(c1, c2) (c1 == c2)
 #endif /* _WIN32  */
 #define IS_DIRSEP			IS_SLASH
