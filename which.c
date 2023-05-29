@@ -161,6 +161,7 @@ static char *find_command_in_path(const char *name, const char *path_list, int *
     if ((status & FS_EXISTS) && (status & FS_EXECABLE))
     {
       found = full_path;
+      free(path);
       break;
     }
 
