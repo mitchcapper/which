@@ -1,3 +1,9 @@
+Git Clones
+===========
+
+   If you are using the bare git source you must follow the maintainer
+instructions in the README.md the first time you checkout the source.
+
 Basic Installation
 ==================
 
