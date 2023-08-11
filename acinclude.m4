@@ -19,11 +19,10 @@ fi
 for path in $ld_so_paths; do
   [ac_save_LIBS="$LIBS"
   LIBS="$path/$1 $5 $LIBS"
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[dnl
-  ifelse($2, main, , dnl Avoid conflicting decl of main.
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[ #
+  ifelse($2, main, , /* Avoid conflicting decl of main.*/
   /* Override any gcc2 internal prototype to avoid an error.  */
-  dnl
-  /* We use char because int might match the return type of a gcc2
+    /* We use char because int might match the return type of a gcc2
       builtin and then its argument prototype would still apply.  */
   char $2();
   )]], [[$2()]])],[eval "ac_cv_lib_static_$ac_lib_var=$path/$1"],[eval "ac_cv_lib_static_$ac_lib_var=no"])
