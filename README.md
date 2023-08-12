@@ -35,20 +35,16 @@ Maintainer Instructions
    If you are not using the release sources but are using the git
 sources directly there are a couple extra steps to compile.
 
-   You will need to have cwautomacros installed:
-https://github.com/CarloWood/cwautomacros.git
+   Make sure you have all the git submodules installed by running
+git submodule update --init --recursive
+in the root of the project.
 
-   They are only needed for the build script generation, and if you set
-the ENV variable CWAUTOMACROSPREFIX they will install there rather
-than globally (normally into /usr).  The autogen.sh script for which
-will also honor the CWAUTOMACROSPREFIX ENV variable.
-
-   You will need to run `./autogen.sh` in the which root to generate the
-install scripts (once cwautomacros is installed).
+   Next run `autoreconf -si` in the which root to generate the
+install scripts.
 
    You must run configure with `--enable-maintainer-mode` the first time
-you go to build in order to generate the man file when you first run
-make, otherwise make will not succeed.
+in order to generate the man file when you first run make, otherwise
+make will not succeed.
 
 
 # Binary Builds

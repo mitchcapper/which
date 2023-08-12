@@ -86,8 +86,8 @@ test-values:
 @PACKAGE@.1: $(srcdir)/@PACKAGE@.1.in $(srcdir)/@PACKAGE@.texi texinfo2man $(srcdir)/configure.ac
 	./texinfo2man $(srcdir)/@PACKAGE@.1.in $(srcdir)/@PACKAGE@.texi > @PACKAGE@.1
 
-texinfo2man: ./indent/man/texinfo2man.c
-	$(CC) -g -o texinfo2man ./indent/man/texinfo2man.c
+texinfo2man: $(srcdir)/indent/man/texinfo2man.c
+	$(CC) -g -o texinfo2man $(srcdir)/indent/man/texinfo2man.c
 
 @PACKAGE@.lsm: $(srcdir)/@PACKAGE@.lsm.in $(srcdir)/configure.ac
 	sed -e 's%!VERSION!%'`grep 's,@VERSION' config.status | cut -d, -f3 | sed -e 's/|.*|//'`'%g' $(srcdir)/@PACKAGE@.lsm.in > @PACKAGE@.lsm
