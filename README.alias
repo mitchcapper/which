@@ -7,9 +7,7 @@ then you need to add the following five lines to your $HOME/.bash_profile:
   }
   export -f which
 
-This is the recommended use of this `which'.  Note that the rpm already adds
-this to /etc/profile.d; there is no need to add it to $HOME/.bash_profile if
-you installed the rpm.
+This is the recommended use of this `which'.
 
 The C shell (csh, tcsh) doesn't have shell functions, but fortunately
 inherites aliases in subshells.  To support aliases with a C shell add

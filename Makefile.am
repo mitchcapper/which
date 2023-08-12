@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = no-texinfo.tex
-ACLOCAL_AMFLAGS=@ACLOCAL_CWFLAGS@
+ACLOCAL_AMFLAGS=-I m4 -I cwautomacros/m4
 
 SUBDIRS = tilde .
 

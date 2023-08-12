@@ -36,6 +36,9 @@ stamp-h1
 install-sh
 missing
 mkinstalldirs
+test/.reference
+build
+env.source
 *.a
 *.exe
 *.obj

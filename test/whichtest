@@ -1,8 +1,11 @@
 #! /bin/bash
 
+TOP_SRCDIR=${TOP_SRCDIR:-$REPOBASE}
+TOP_BUILDDIR=${TOP_BUILDDIR:-$REPOBASE-objdir}
+
 perform_test () {
   (
-    cd /home/carlo/c/which-objdir
+    cd "$TOP_BUILDDIR"
     mkdir -p test
     umask 022
     export PATH=".:~/bin:/bin:/usr/bin"
@@ -52,7 +55,7 @@ perform_test () {
 	}
 	system($$0" 2>&1");
       }
-    }' /home/carlo/c/which/test/commands | sed -e 's/-objdir//g' > test/.testout;
+    }' "$TOP_SRCDIR/test/commands" | sed -e 's/-objdir//g' > test/.testout;
     /usr/bin/sudo /bin/rm -f cat xxx alias.list;
   )
 }
@@ -60,8 +63,8 @@ perform_test () {
 case "$1" in
 check)
  perform_test;
- if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' --ignore-matching-lines='uid=1000(carlo) gid=1000(carlo)' /home/carlo/c/which/test/.reference .testout ; then
-   rm -f .testout;
+ if diff -u --ignore-matching-lines='-rwx------' --ignore-matching-lines='GNU which v2.[0-9]+,' --ignore-matching-lines='uid=1000(carlo) gid=1000(carlo)' "$TOP_SRCDIR/test/.reference" $TOP_BUILDDIR/test/.testout ; then
+   rm -f $TOP_BUILDDIR/test/.testout;
    echo "Check successful!"
    exit 0;
  else
@@ -71,8 +74,8 @@ check)
  ;;
 generate)
   perform_test;
-  cat .testout | sed -e 's%/home/carlo/c/which/which%which%g' > ../EXAMPLES;
-  mv .testout /home/carlo/c/which/test/.reference;
+  cat $TOP_BUILDDIR/test/.testout | sed -e "s%$TOP_SRCDIR/which%which%g" > $TOP_SRCDIR/EXAMPLES;
+  mv $TOP_BUILDDIR/test/.testout "$TOP_SRCDIR/test/.reference";
  exit 0;
  ;;
 *)
